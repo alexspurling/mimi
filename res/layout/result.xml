@@ -23,15 +23,61 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:padding="5dp">
+
+	<RelativeLayout
+	    android:id="@+id/wordlayout"
+	    android:layout_width="fill_parent"
+    	android:layout_height="wrap_content">
+
+	    <TextView
+	        android:id="@+id/word"
+	        style="@android:style/TextAppearance.Large"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:paddingRight="10dp"
+	        android:text="Poissonnerie de l'Avenue"
+        	android:layout_alignParentLeft="true" />
+
+	    <ImageView
+	        android:id="@+id/stars1"
+	        android:layout_width="13dp"
+	        android:layout_height="20dp"
+	        android:layout_gravity="center"
+	        android:layout_weight="1"
+	        android:src="@drawable/redforkandspoon_small_1"
+	        android:tag="stars1"
+        	android:layout_toRightOf="@id/word" />
+	</RelativeLayout>
+
+	<RelativeLayout
+	    android:id="@+id/wordlayout"
+	    android:layout_width="fill_parent"
+    	android:layout_height="wrap_content">
+	    
+	    <TextView
+	        android:id="@+id/details"
+	        style="@android:style/TextAppearance.Small"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:singleLine="true"
+	        android:text="modern - Carte: 21£/34£" />
+
+	    <TextView
+	        android:id="@+id/distance"
+	        style="@android:style/TextAppearance.Small"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="0.5km"
+        	android:layout_alignParentRight="true" />
+	</RelativeLayout>
+    
     <TextView
-            android:id="@+id/word"
-            style="@android:style/TextAppearance.Large"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    <TextView
-            android:id="@+id/definition"
-            style="@android:style/TextAppearance.Small"
-            android:singleLine="true"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+        android:id="@+id/description"
+        style="@android:style/TextAppearance.Small"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:text="Friendly, conscientiously run Chelsea local, where satisfying and carefully prepared pub classics are served in the roomy, civilised bar or in the warm, comfortable dining room at the back."
+         />
+
 </LinearLayout>

@@ -16,8 +16,16 @@
 
 package com.sandstonelabs.mimi;
 
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +38,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
@@ -45,6 +54,7 @@ public class SearchableDictionary extends Activity {
 
     private TextView mTextView;
     private ListView mListView;
+	private CachedRestaurantSearch cachedRestaurantSearch;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +65,19 @@ public class SearchableDictionary extends Activity {
         mListView = (ListView) findViewById(R.id.list);
 
         handleIntent(getIntent());
+
+        File cacheFile = new File(getCacheDir(), "mimi-cache.txt");
+        RestaurantJsonParser jsonParser = new RestaurantJsonParser();
+		try {
+			cachedRestaurantSearch = new CachedRestaurantSearch(cacheFile, jsonParser);
+			
+			String randomString = new BigInteger(32, new Random()).toString(32);
+			Restaurant randomRestaurant = new Restaurant.RestaurantBuilder().name("Restaurant " + randomString).build();
+			List<Restaurant> restaurants = Arrays.asList(randomRestaurant);
+			cachedRestaurantSearch.storeResultsInCache(restaurants);
+		} catch (IOException e) {
+			throw new RuntimeException("Error in the restaurant cache search", e);
+		}
     }
 
     @Override
@@ -87,11 +110,12 @@ public class SearchableDictionary extends Activity {
 
         Cursor cursor = managedQuery(DictionaryProvider.CONTENT_URI, null, null,
                                 new String[] {query}, null);
-
+        
         if (cursor == null) {
             // There are no results
             mTextView.setText(getString(R.string.no_results, new Object[] {query}));
         } else {
+        	
             // Display the number of results
             int count = cursor.getCount();
             String countString = getResources().getQuantityString(R.plurals.search_results,
@@ -109,13 +133,22 @@ public class SearchableDictionary extends Activity {
             // Create a simple cursor adapter for the definitions and apply them to the ListView
             SimpleCursorAdapter words = new SimpleCursorAdapter(this,
                                           R.layout.result, cursor, from, to);
-            mListView.setAdapter(words);
+            
+            List<String> items = new ArrayList<String>();
+            for (Restaurant restaurant : cachedRestaurantSearch.getAllCachedRestaurants()) {
+            	items.add(restaurant.name);
+            }
+            
+			ArrayAdapter<String> adapter = new MySimpleArrayAdapter(this, items);
+            
+            mListView.setAdapter(adapter);
 
             // Define the on-click listener for the list items
             mListView.setOnItemClickListener(new OnItemClickListener() {
 
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                	
                     // Build the Intent used to open WordActivity with a specific word Uri
                     Intent wordIntent = new Intent(getApplicationContext(), WordActivity.class);
                     Uri data = Uri.withAppendedPath(DictionaryProvider.CONTENT_URI,
