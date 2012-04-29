@@ -1,9 +1,16 @@
 package com.sandstonelabs.mimi;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
 
+import com.javadocmd.simplelatlng.LatLng;
+import com.javadocmd.simplelatlng.LatLngTool;
+import com.javadocmd.simplelatlng.util.LengthUnit;
+
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +29,11 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 	
 	private final Random random = new Random();
 
-	public RestaurantSearchArrayAdapter(Context context, List<Restaurant> restaurants) {
+	private final LatLng curLocation;
+
+	public RestaurantSearchArrayAdapter(Context context, List<Restaurant> restaurants, LatLng curLocation) {
 		super(context, R.layout.result, restaurants);
+		this.curLocation = curLocation;
 	}
 
 	@Override
@@ -44,8 +54,12 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		setRestaurantStarsImageView(restaurant, starsImageView);
 		
 		//Set the restaurant details
-		TextView detailsTextView = (TextView) rowView.findViewById(R.id.search_restaurant_details);
-		detailsTextView.setText(getRestaurantDetails(restaurant));
+		TextView summaryTextView = (TextView) rowView.findViewById(R.id.search_restaurant_summary);
+		summaryTextView.setText(getRestaurantSummary(restaurant));
+		
+		//Set the restaurant distance
+		TextView distanceTextView = (TextView) rowView.findViewById(R.id.search_restaurant_distance);
+		distanceTextView.setText(getRestaurantDistance(restaurant));
 		
 		//Set the restaurant description
 		TextView descriptionTextView = (TextView) rowView.findViewById(R.id.search_restaurant_description);
@@ -53,13 +67,26 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		
 		return rowView;
 	}
-	
+
 	private String getRestaurantName(Restaurant restaurant) {
 		return restaurant.name;
 	}
 	
-	private String getRestaurantDetails(Restaurant restaurant) {
-		return restaurant.cuisine + " - " + restaurant.foodPrice;
+	private String getRestaurantSummary(Restaurant restaurant) {
+		char firstLetter = restaurant.cuisine.charAt(0);
+		//TODO: DO this transformation when parsing the raw data!
+		if (Character.isLowerCase(firstLetter)) {
+			return Character.toUpperCase(firstLetter) + restaurant.cuisine.substring(1);
+		}
+		return restaurant.cuisine;
+	}
+	
+	private String getRestaurantDistance(Restaurant restaurant) {
+		LatLng restaurantLocation = new LatLng(restaurant.latitude, restaurant.longitude);
+		double distance = LatLngTool.distance(curLocation, restaurantLocation, LengthUnit.KILOMETER);
+		DecimalFormat df = new DecimalFormat("#.#");
+		df.setRoundingMode(RoundingMode.HALF_UP);
+		return df.format(distance) + "km";
 	}
 	
 	private String getRestaurantDescription(Restaurant restaurant) {

@@ -19,6 +19,8 @@ package com.sandstonelabs.mimi;
 import java.io.IOException;
 import java.util.List;
 
+import com.javadocmd.simplelatlng.LatLng;
+
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -48,6 +50,7 @@ public class SearchableDictionary extends Activity {
     private TextView mTextView;
     private ListView mListView;
     private List<Restaurant> restaurantList;
+    private LatLng currentLocation;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class SearchableDictionary extends Activity {
 
         handleIntent(getIntent());
 
+        currentLocation = new LatLng(51.492713, -0.166243);
         RestaurantJsonParser jsonParser = new RestaurantJsonParser();
 		try {
 			StaticRestaurantLoader staticRestaurantLoader = new StaticRestaurantLoader(this, jsonParser);
@@ -110,7 +114,7 @@ public class SearchableDictionary extends Activity {
                                     count, new Object[] {count, query});
             mTextView.setText(countString);
             
-			ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurantList);
+			ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurantList, currentLocation);
             
             mListView.setAdapter(adapter);
 
