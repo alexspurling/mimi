@@ -25,12 +25,11 @@
         android:padding="5dp">
 
 	<RelativeLayout
-	    android:id="@+id/wordlayout"
 	    android:layout_width="fill_parent"
     	android:layout_height="wrap_content">
 
 	    <TextView
-	        android:id="@+id/word"
+	        android:id="@+id/search_restaurant_name"
 	        style="@android:style/TextAppearance.Large"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
@@ -39,23 +38,22 @@
         	android:layout_alignParentLeft="true" />
 
 	    <ImageView
-	        android:id="@+id/stars1"
-	        android:layout_width="13dp"
-	        android:layout_height="20dp"
+	        android:id="@+id/search_restaurant_stars"
+	        android:layout_width="20dp"
+	        android:layout_height="30dp"
 	        android:layout_gravity="center"
 	        android:layout_weight="1"
 	        android:src="@drawable/redforkandspoon_small_1"
 	        android:tag="stars1"
-        	android:layout_toRightOf="@id/word" />
+        	android:layout_toRightOf="@id/search_restaurant_name" />
 	</RelativeLayout>
 
 	<RelativeLayout
-	    android:id="@+id/wordlayout"
 	    android:layout_width="fill_parent"
     	android:layout_height="wrap_content">
 	    
 	    <TextView
-	        android:id="@+id/details"
+	        android:id="@+id/search_restaurant_details"
 	        style="@android:style/TextAppearance.Small"
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
@@ -63,7 +61,7 @@
 	        android:text="modern - Carte: 21£/34£" />
 
 	    <TextView
-	        android:id="@+id/distance"
+	        android:id="@+id/search_restaurant_distance"
 	        style="@android:style/TextAppearance.Small"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
@@ -72,7 +70,7 @@
 	</RelativeLayout>
     
     <TextView
-        android:id="@+id/description"
+        android:id="@+id/search_restaurant_description"
         style="@android:style/TextAppearance.Small"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
