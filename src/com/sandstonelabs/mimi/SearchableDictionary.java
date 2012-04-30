@@ -19,26 +19,19 @@ package com.sandstonelabs.mimi;
 import java.io.IOException;
 import java.util.List;
 
-import com.javadocmd.simplelatlng.LatLng;
-
 import android.app.Activity;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.TextView;
+
+import com.javadocmd.simplelatlng.LatLng;
 
 /**
  * The main activity for the dictionary.
@@ -60,8 +53,6 @@ public class SearchableDictionary extends Activity {
         mTextView = (TextView) findViewById(R.id.text);
         mListView = (ListView) findViewById(R.id.list);
 
-        handleIntent(getIntent());
-
         currentLocation = new LatLng(51.492713, -0.166243);
         RestaurantJsonParser jsonParser = new RestaurantJsonParser();
 		try {
@@ -70,6 +61,8 @@ public class SearchableDictionary extends Activity {
 		} catch (IOException e) {
 			throw new RuntimeException("Error in the restaurant cache search", e);
 		}
+
+        handleIntent(getIntent());
     }
 
     @Override
@@ -82,15 +75,14 @@ public class SearchableDictionary extends Activity {
     }
 
     private void handleIntent(Intent intent) {
+    	Log.i("Mimi", "Handling intent: " + intent);
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             // handles a click on a search suggestion; launches activity to show word
             Intent wordIntent = new Intent(this, WordActivity.class);
             wordIntent.setData(intent.getData());
             startActivity(wordIntent);
-        } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            // handles a search query
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            showResults(query);
+        } else {
+            showResults();
         }
     }
 
@@ -98,66 +90,22 @@ public class SearchableDictionary extends Activity {
      * Searches the dictionary and displays results for the given query.
      * @param query The search query
      */
-    private void showResults(String query) {
-
-        Cursor cursor = managedQuery(DictionaryProvider.CONTENT_URI, null, null,
-                                new String[] {query}, null);
+    private void showResults() {
+        // Display the number of results
+        mTextView.setText("20 results for (your location)");
         
-        if (cursor == null) {
-            // There are no results
-            mTextView.setText(getString(R.string.no_results, new Object[] {query}));
-        } else {
-        	
-            // Display the number of results
-            int count = cursor.getCount();
-            String countString = getResources().getQuantityString(R.plurals.search_results,
-                                    count, new Object[] {count, query});
-            mTextView.setText(countString);
-            
-			ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurantList, currentLocation);
-            
-            mListView.setAdapter(adapter);
+        Log.i("Mimi", "List has " + restaurantList.size() + " elements");
+		ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurantList, currentLocation);
+        
+        mListView.setAdapter(adapter);
 
-            // Define the on-click listener for the list items
-            mListView.setOnItemClickListener(new OnItemClickListener() {
+        // Define the on-click listener for the list items
+        mListView.setOnItemClickListener(new OnItemClickListener() {
 
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                	
-                    // Build the Intent used to open WordActivity with a specific word Uri
-                    Intent wordIntent = new Intent(getApplicationContext(), WordActivity.class);
-                    Uri data = Uri.withAppendedPath(DictionaryProvider.CONTENT_URI,
-                                                    String.valueOf(id));
-                    wordIntent.setData(data);
-                    startActivity(wordIntent);
-                }
-            });
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.options_menu, menu);
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-            SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            searchView.setIconifiedByDefault(false);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.search:
-                onSearchRequested();
-                return true;
-            default:
-                return false;
-        }
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            	mTextView.setText("Selected " + id);
+            }
+        });
     }
 }

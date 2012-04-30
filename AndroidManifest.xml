@@ -35,28 +35,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Receives the search request. -->
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-                <!-- No category needed, because the Intent will specify this class component-->
-            </intent-filter>
-
-            <!-- Points to searchable meta data. -->
-            <meta-data android:name="android.app.searchable"
-                       android:resource="@xml/searchable" />
-
         </activity>
 
         <!-- Displays the definition of a word. -->
         <activity android:name=".WordActivity" />
-
-        <!-- Provides search suggestions for words and their definitions. -->
-        <provider android:name=".DictionaryProvider"
-                  android:authorities="com.sandstonelabs.mimi.DictionaryProvider" />
-
-        <!-- Points to searchable activity so the whole app can invoke search. -->
-        <meta-data android:name="android.app.default_searchable"
-                   android:value=".SearchableDictionary" />
 
     </application>
 </manifest>
