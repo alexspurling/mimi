@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,11 +33,11 @@ import android.widget.TextView;
 import com.javadocmd.simplelatlng.LatLng;
 
 /**
- * The main activity for the dictionary.
+ * This activity displays the results of a location based restaurant search.
  * Displays search results triggered by the search dialog and handles
  * actions from search suggestions.
  */
-public class SearchableDictionary extends Activity {
+public class SearchResults extends Activity {
 
     private TextView mTextView;
     private ListView mListView;

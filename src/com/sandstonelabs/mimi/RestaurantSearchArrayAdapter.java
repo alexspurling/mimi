@@ -10,7 +10,6 @@ import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,7 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 	private final LatLng curLocation;
 
 	public RestaurantSearchArrayAdapter(Context context, List<Restaurant> restaurants, LatLng curLocation) {
-		super(context, R.layout.result, restaurants);
+		super(context, R.layout.results, restaurants);
 		this.curLocation = curLocation;
 	}
 
@@ -41,7 +40,7 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		Context context = getContext();
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		View rowView = inflater.inflate(R.layout.result, parent, false);
+		View rowView = inflater.inflate(R.layout.results, parent, false);
 
 		Restaurant restaurant = getItem(position);
 		
