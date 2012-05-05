@@ -38,7 +38,7 @@
         </activity>
 
         <!-- Displays the definition of a word. -->
-        <activity android:name=".WordActivity" />
+        <activity android:name=".RestaurantDetailsActivity" />
 
     </application>
 </manifest>

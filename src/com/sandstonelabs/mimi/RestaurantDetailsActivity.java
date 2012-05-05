@@ -23,7 +23,7 @@ import android.widget.TextView;
 /**
  * Displays a word and its definition.
  */
-public class WordActivity extends Activity {
+public class RestaurantDetailsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +32,10 @@ public class WordActivity extends Activity {
         TextView word = (TextView) findViewById(R.id.word);
         TextView definition = (TextView) findViewById(R.id.definition);
 
-        word.setText("Word");
-        definition.setText("Definition");
+        RestaurantData restaurantData = getIntent().getParcelableExtra("restaurant");
+        Restaurant restaurant = restaurantData.getRestaurant();
+        
+        word.setText(restaurant.name);
+        definition.setText(restaurant.description);
     }
 }

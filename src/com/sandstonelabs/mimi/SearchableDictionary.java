@@ -78,7 +78,7 @@ public class SearchableDictionary extends Activity {
     	Log.i("Mimi", "Handling intent: " + intent);
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             // handles a click on a search suggestion; launches activity to show word
-            Intent wordIntent = new Intent(this, WordActivity.class);
+            Intent wordIntent = new Intent(this, RestaurantDetailsActivity.class);
             wordIntent.setData(intent.getData());
             startActivity(wordIntent);
         } else {
@@ -95,7 +95,7 @@ public class SearchableDictionary extends Activity {
         mTextView.setText("20 results for (your location)");
         
         Log.i("Mimi", "List has " + restaurantList.size() + " elements");
-		ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurantList, currentLocation);
+		final ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurantList, currentLocation);
         
         mListView.setAdapter(adapter);
 
@@ -105,6 +105,14 @@ public class SearchableDictionary extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	mTextView.setText("Selected " + id);
+            	// Build the Intent used to open WordActivity with a specific word Uri
+                Intent restaurantIntent = new Intent(getApplicationContext(), RestaurantDetailsActivity.class);
+                
+                Restaurant restaurant = adapter.getItem(position);
+                
+                restaurantIntent.putExtra("restaurant", new RestaurantData(restaurant));
+				
+                startActivity(restaurantIntent);
             }
         });
     }
