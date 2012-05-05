@@ -12,11 +12,15 @@ public class RestaurantDetailsActivity extends Activity {
 
         TextView name = (TextView) findViewById(R.id.name);
         TextView description = (TextView) findViewById(R.id.description);
+        TextView cuisine = (TextView) findViewById(R.id.cuisine);
+        TextView foodPrice = (TextView) findViewById(R.id.food_price);
 
         RestaurantData restaurantData = getIntent().getParcelableExtra("restaurant");
         Restaurant restaurant = restaurantData.getRestaurant();
         
         name.setText(restaurant.name);
         description.setText(restaurant.description);
+        cuisine.setText(restaurant.cuisine);
+        foodPrice.setText(restaurant.foodPrice);
     }
 }
