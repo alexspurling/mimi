@@ -17,4 +17,8 @@
     <string name="sample_description">A Chelsea institution, with popular bar in the evenings and a separate, smart restaurant with restractable roof. The menu covers all bases and mixes British classics with European influences.</string>
     <string name="sample_cuisine">Cuisine: Modern</string>
     <string name="sample_food_price">Menu: 27£/ 59£ - Carte: 59£/85£</string>
+    <string name="sample_address">17 Mossop St GB - Chelsea SW3 2LY</string>
+    <string name="sample_location">Show on map</string>
+    <string name="sample_email">theadmiralcodrington@theadmiralcodrington.co.uk</string>
+    <string name="sample_phone_number">(020) 75810005</string>
 </resources>
