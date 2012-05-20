@@ -27,11 +27,13 @@ public class RestaurantDetailsActivity extends Activity {
 		RestaurantData restaurantData = getIntent().getParcelableExtra("restaurant");
 		final Restaurant restaurant = restaurantData.getRestaurant();
 
+		RestaurantDisplay restaurantDisplay = new RestaurantDisplay(restaurant);
+		
 		nameText.setText(restaurant.name);
 		descriptionText.setText(restaurant.description);
-		cuisineText.setText(restaurant.cuisine);
+		cuisineText.setText(restaurantDisplay.getCuisine());
 		foodPriceText.setText(restaurant.foodPrice);
-		emailButton.setText(getLengthRestrictedString(restaurant.email, 35));
+		emailButton.setText(getLengthRestrictedString(restaurant.email, 30));
 		callPhoneButton.setText(restaurant.phoneNumber);
 		
 		locationButton.setOnClickListener(new View.OnClickListener() {

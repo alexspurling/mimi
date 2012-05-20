@@ -26,11 +26,7 @@ public class RestaurantDisplay {
 		this.restaurant = restaurant;
 	}
 	
-	public String getRestaurantName() {
-		return restaurant.name;
-	}
-	
-	public String getRestaurantSummary() {
+	public String getCuisine() {
 		char firstLetter = restaurant.cuisine.charAt(0);
 		//TODO: DO this transformation when parsing the raw data!
 		if (Character.isLowerCase(firstLetter)) {
@@ -39,7 +35,7 @@ public class RestaurantDisplay {
 		return restaurant.cuisine;
 	}
 	
-	public String getRestaurantDistance(LatLng curLocation) {
+	public String getDistance(LatLng curLocation) {
 		LatLng restaurantLocation = new LatLng(restaurant.latitude, restaurant.longitude);
 		double distance = LatLngTool.distance(curLocation, restaurantLocation, LengthUnit.KILOMETER);
 		DecimalFormat df = new DecimalFormat("#.#");
@@ -47,11 +43,7 @@ public class RestaurantDisplay {
 		return df.format(distance) + "km";
 	}
 	
-	public String getRestaurantDescription() {
-		return restaurant.description;
-	}
-	
-	public void setRestaurantStarsImageView(Context context, RelativeLayout relativeLayout) {
+	public void setRatingImageView(Context context, RelativeLayout relativeLayout) {
 		RestaurantRating rating = restaurant.rating;
 
 		View previousElement = relativeLayout.getChildAt(relativeLayout.getChildCount()-1);

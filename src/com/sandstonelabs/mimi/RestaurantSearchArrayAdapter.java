@@ -33,23 +33,23 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		RestaurantDisplay restaurantDisplay = new RestaurantDisplay(restaurant);
 		//Set the restaurant name
 		TextView nameTextView = (TextView) rowView.findViewById(R.id.search_restaurant_name);
-		nameTextView.setText(restaurantDisplay.getRestaurantName());
+		nameTextView.setText(restaurant.name);
 
 		//Set the images for the restaurant rating
 		RelativeLayout relativeLayout = (RelativeLayout) rowView.findViewById(R.id.search_restaurant_title);
-		restaurantDisplay.setRestaurantStarsImageView(getContext(), relativeLayout);
+		restaurantDisplay.setRatingImageView(getContext(), relativeLayout);
 		
 		//Set the restaurant details
 		TextView summaryTextView = (TextView) rowView.findViewById(R.id.search_restaurant_summary);
-		summaryTextView.setText(restaurantDisplay.getRestaurantSummary());
+		summaryTextView.setText(restaurantDisplay.getCuisine());
 		
 		//Set the restaurant distance
 		TextView distanceTextView = (TextView) rowView.findViewById(R.id.search_restaurant_distance);
-		distanceTextView.setText(restaurantDisplay.getRestaurantDistance(curLocation));
+		distanceTextView.setText(restaurantDisplay.getDistance(curLocation));
 		
 		//Set the restaurant description
 		TextView descriptionTextView = (TextView) rowView.findViewById(R.id.search_restaurant_description);
-		descriptionTextView.setText(restaurantDisplay.getRestaurantDescription());
+		descriptionTextView.setText(restaurant.description);
 		
 		return rowView;
 	}
