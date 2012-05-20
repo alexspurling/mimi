@@ -3,13 +3,12 @@ package com.sandstonelabs.mimi;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Random;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -20,8 +19,6 @@ import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
 
 public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
-
-	private final Random random = new Random();
 
 	private final LatLng curLocation;
 
@@ -39,8 +36,6 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 
 		Restaurant restaurant = getItem(position);
 
-		Log.i(MimiLog.TAG, "Setting up view for restaurant: " + restaurant);
-		
 		//Set the restaurant name
 		TextView nameTextView = (TextView) rowView.findViewById(R.id.search_restaurant_name);
 		nameTextView.setText(getRestaurantName(restaurant));
@@ -90,18 +85,18 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 	}
 	
 	private void setRestaurantStarsImageView(Restaurant restaurant, RelativeLayout relativeLayout) {
-		int starRating = random.nextInt(5) + 1;
+		RestaurantRating rating = restaurant.rating;
 
-		Log.i(MimiLog.TAG, "Setting star images for rating " + starRating);
+		View previousElement = relativeLayout.getChildAt(relativeLayout.getChildCount()-1);
 		
-		View previousElement = relativeLayout.getChildAt(0);
+		int ratingImageResource = getRatingImageResource(rating);
 		
-		for (int i = 0; i < starRating; i++) {
+		for (int i = 0; i < rating.ratingValue; i++) {
 			ImageView starImage = new ImageView(getContext());
 			starImage.setId(ViewId.getInstance().getUniqueId()); //Need to set the id manually
-			starImage.setImageResource(R.drawable.redforkandspoon_small_1);
+			starImage.setImageResource(ratingImageResource);
 			
-			RelativeLayout.LayoutParams imageLayout = new RelativeLayout.LayoutParams(20, 30);
+			RelativeLayout.LayoutParams imageLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 			imageLayout.addRule(RelativeLayout.RIGHT_OF, previousElement.getId());
 			imageLayout.addRule(RelativeLayout.CENTER_VERTICAL);
 			relativeLayout.addView(starImage, imageLayout);
@@ -109,5 +104,21 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 			//Take a note of this image so we can refer to it in the next loop
 			previousElement = starImage;
 		}
+	}
+
+	private int getRatingImageResource(RestaurantRating rating) {
+		switch(rating.ratingType) {
+		case COMFORTABLE:
+			return R.drawable.comfortable;
+		case PLEASANT:
+			return R.drawable.pleasant;
+		case MICHELIN_STAR:
+			return R.drawable.michelinstar;
+		case PUB:
+			return R.drawable.pub;
+		case HOTEL:
+			return R.drawable.hotel;
+		}
+		return -1;
 	}
 }
