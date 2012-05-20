@@ -5,9 +5,11 @@ import java.text.DecimalFormat;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.javadocmd.simplelatlng.LatLng;
 import com.javadocmd.simplelatlng.LatLngTool;
@@ -42,14 +44,29 @@ public class RestaurantDisplay {
 		df.setRoundingMode(RoundingMode.HALF_UP);
 		return df.format(distance) + "km";
 	}
-	
-	public void setRatingImageView(Context context, RelativeLayout relativeLayout, View displayAfterView, View displayBeforeView) {
-		RestaurantRating rating = restaurant.rating;
 
+	public void setRatingWithDescription(RestaurantRating rating, Context context, ViewGroup ratingLayout, ViewGroup ratingView, TextView ratingDescriptionText) {
+		if (rating == null) {
+			ratingLayout.setVisibility(View.GONE);
+			return;
+		}
+		
+		setRatingView(rating, context, ratingView);
+		ratingDescriptionText.setText(rating.description);
+	}
+	
+	public void setRatingImageView(Context context, ViewGroup viewGroup) {
+		//Display the quality rating if it exists, otherwise show the comfort rating
+		RestaurantRating rating = restaurant.qualityRating != null ? restaurant.qualityRating : restaurant.comfortRating;
+		setRatingView(rating, context, viewGroup);
+	}
+	
+	private void setRatingView(RestaurantRating rating, Context context, ViewGroup viewGroup) {
 		//Nothing to set
 		if (rating == null) return;
 		
-		View previousView = displayAfterView;
+		viewGroup.removeAllViews(); //Clear out any existing views from this group
+		View previousView = null;
 		
 		int ratingImageResource = getRatingImageResource(rating);
 		
@@ -63,18 +80,10 @@ public class RestaurantDisplay {
 				imageLayout.addRule(RelativeLayout.RIGHT_OF, previousView.getId());
 			}
 			imageLayout.addRule(RelativeLayout.CENTER_VERTICAL);
-			relativeLayout.addView(starImage, imageLayout);
+			viewGroup.addView(starImage, imageLayout);
 			
 			//Take a note of this image so we can refer to it in the next loop
 			previousView = starImage;
-		}
-		
-		if (displayBeforeView != null && previousView != null) {
-//			RelativeLayout.LayoutParams previousImageLayout = (RelativeLayout.LayoutParams) previousView.getLayoutParams();
-//			previousImageLayout.addRule(RelativeLayout.LEFT_OF, displayBeforeView.getId());
-//			
-			RelativeLayout.LayoutParams beforeImageLayout = (RelativeLayout.LayoutParams) displayBeforeView.getLayoutParams();
-			beforeImageLayout.addRule(RelativeLayout.RIGHT_OF, previousView.getId());
 		}
 	}
 
@@ -92,5 +101,19 @@ public class RestaurantDisplay {
 			return R.drawable.hotel;
 		}
 		return -1;
+	}
+
+	public String getComfortRatingDescription() {
+		if (restaurant.comfortRating != null) {
+			return restaurant.comfortRating.description;
+		}
+		return "";
+	}
+
+	public String getQualityRatingDescription() {
+		if (restaurant.qualityRating != null) {
+			return restaurant.qualityRating.description;
+		}
+		return "";
 	}
 }

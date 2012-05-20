@@ -18,21 +18,113 @@
 	        android:textColor="?android:textColorPrimary"
 	        android:textSize="30dp" />
 	
-		<RelativeLayout
-		    android:id="@+id/details_restaurant_rating"
-		    android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content">
+	    <!-- Layouts for rating stars and description -->
+		<LinearLayout
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:orientation="vertical">
+			<RelativeLayout
+			    android:id="@+id/details_comfort_rating_layout"
+			    android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content">
 	
-		    <!-- Restaurant Rating will be inserted here -->
-		    <TextView
-		        android:id="@+id/details_rating_description"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-	        	android:paddingLeft="10dp"
-		        android:text="@string/sample_rating_description"
-		        android:textColor="?android:textColorSecondary"
-		        android:textSize="14dp" />
-		</RelativeLayout>
+				<RelativeLayout
+			    	android:id="@+id/details_comfort_rating"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+		    		android:layout_centerVertical="true"
+				    android:orientation="horizontal">
+
+				    <ImageView
+				        android:id="@+id/comf1"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:src="@drawable/pleasant" />
+
+				    <ImageView
+				        android:id="@+id/comf2"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_toRightOf="@id/comf1"
+				        android:src="@drawable/pleasant" />
+
+				    <ImageView
+				        android:id="@+id/comf3"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_toRightOf="@id/comf2"
+				        android:src="@drawable/pleasant" />
+
+				    <ImageView
+				        android:id="@+id/comf4"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_toRightOf="@id/comf3"
+				        android:src="@drawable/pleasant" />
+
+				</RelativeLayout>
+		    
+			    <!-- Restaurant Rating will be inserted here -->
+			    <TextView
+			        android:id="@+id/details_comfort_rating_description"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+		    		android:layout_centerVertical="true"
+		        	android:paddingLeft="10dp"
+			        android:text="Top class comfort restaurant"
+			        android:textColor="?android:textColorSecondary"
+			        android:textSize="14dp"
+			    	android:layout_toRightOf="@id/details_comfort_rating" />
+			</RelativeLayout>
+			<RelativeLayout
+			    android:id="@+id/details_quality_rating_layout"
+			    android:layout_width="wrap_content"
+		    	android:layout_height="wrap_content">
+	
+			    <!-- Layout for quality rating -->
+			    <RelativeLayout
+			    	android:id="@+id/details_quality_rating"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+		    		android:layout_centerVertical="true"
+				    android:orientation="horizontal">
+
+				    <ImageView
+				        android:id="@+id/qual1"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:src="@drawable/michelinstar" />
+
+				    <ImageView
+				        android:id="@+id/qual2"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_toRightOf="@id/qual1"
+				        android:src="@drawable/michelinstar" />
+
+				    <ImageView
+				        android:id="@+id/qual3"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_toRightOf="@id/qual2"
+				        android:src="@drawable/michelinstar" />
+
+			    </RelativeLayout>
+		    
+			    <!-- Restaurant Rating will be inserted here -->
+			    <TextView
+			        android:id="@+id/details_quality_rating_description"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			    	android:layout_centerVertical="true"
+		        	android:paddingLeft="10dp"
+			        android:text="Exceptional cuisine, worth a special journey"
+			        android:textColor="?android:textColorSecondary"
+			        android:textSize="14dp"
+			    	android:layout_toRightOf="@id/details_quality_rating" />
+			</RelativeLayout>
+		</LinearLayout>
+		
 	    <TextView
 	        android:id="@+id/details_description"
 	        android:layout_width="wrap_content"

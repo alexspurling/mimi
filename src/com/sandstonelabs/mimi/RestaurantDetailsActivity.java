@@ -7,8 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class RestaurantDetailsActivity extends Activity {
@@ -19,8 +19,12 @@ public class RestaurantDetailsActivity extends Activity {
 		setContentView(R.layout.details);
 
 		TextView nameText = (TextView) findViewById(R.id.details_name);
-		RelativeLayout ratingLayout = (RelativeLayout) findViewById(R.id.details_restaurant_rating);
-		TextView ratingDescriptionText = (TextView) findViewById(R.id.details_rating_description);
+		ViewGroup comfortRatingLayout = (ViewGroup) findViewById(R.id.details_comfort_rating_layout);
+		ViewGroup qualityRatingLayout = (ViewGroup) findViewById(R.id.details_quality_rating_layout);
+		ViewGroup comfortRatingView = (ViewGroup) findViewById(R.id.details_comfort_rating);
+		ViewGroup qualityRatingView = (ViewGroup) findViewById(R.id.details_quality_rating);
+		TextView comfortRatingDescriptionText = (TextView) findViewById(R.id.details_comfort_rating_description);
+		TextView qualityRatingDescriptionText = (TextView) findViewById(R.id.details_quality_rating_description);
 		TextView descriptionText = (TextView) findViewById(R.id.details_description);
 		TextView cuisineText = (TextView) findViewById(R.id.details_cuisine);
 		TextView foodPriceText = (TextView) findViewById(R.id.details_food_price);
@@ -34,11 +38,14 @@ public class RestaurantDetailsActivity extends Activity {
 		RestaurantDisplay restaurantDisplay = new RestaurantDisplay(restaurant);
 		
 		nameText.setText(restaurant.name);
-		restaurantDisplay.setRatingImageView(this, ratingLayout, null, ratingDescriptionText);
+		
+		restaurantDisplay.setRatingWithDescription(restaurant.comfortRating, this, comfortRatingLayout, comfortRatingView, comfortRatingDescriptionText);
+		restaurantDisplay.setRatingWithDescription(restaurant.qualityRating, this, qualityRatingLayout, qualityRatingView, qualityRatingDescriptionText);
+		
 		descriptionText.setText(restaurant.description);
 		cuisineText.setText(restaurantDisplay.getCuisine());
 		foodPriceText.setText(restaurant.foodPrice);
-		emailButton.setText(getLengthRestrictedString(restaurant.email, 30));
+		emailButton.setText(getLengthRestrictedString(restaurant.email, 28));
 		callPhoneButton.setText(restaurant.phoneNumber);
 		
 		locationButton.setOnClickListener(new View.OnClickListener() {

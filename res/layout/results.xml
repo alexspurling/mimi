@@ -37,6 +37,15 @@
 	        android:paddingRight="10dp"
 	        android:text="@string/sample_name"
         	android:layout_alignParentLeft="true" />
+		    
+	    <!-- Layout for restaurant rating -->
+	    <LinearLayout
+	    	android:id="@+id/search_restaurant_rating"
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"
+		    android:orientation="horizontal"
+		    android:layout_centerVertical="true"
+		    android:layout_toRightOf="@id/search_restaurant_name"/>
 
 	</RelativeLayout>
 

@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.javadocmd.simplelatlng.LatLng;
@@ -36,8 +36,8 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		nameTextView.setText(restaurant.name);
 
 		//Set the images for the restaurant rating
-		RelativeLayout relativeLayout = (RelativeLayout) rowView.findViewById(R.id.search_restaurant_title);
-		restaurantDisplay.setRatingImageView(context, relativeLayout, nameTextView, null);
+		LinearLayout ratingLayout = (LinearLayout) rowView.findViewById(R.id.search_restaurant_rating);
+		restaurantDisplay.setRatingImageView(context, ratingLayout);
 		
 		//Set the restaurant details
 		TextView summaryTextView = (TextView) rowView.findViewById(R.id.search_restaurant_summary);

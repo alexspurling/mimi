@@ -27,8 +27,8 @@ public class RestaurantData implements Parcelable {
 		dest.writeString(restaurant.description);
 		dest.writeString(restaurant.cuisine);
 		dest.writeString(restaurant.foodPrice);
-		dest.writeInt(restaurant.rating.ratingValue);
-		dest.writeString(restaurant.rating.ratingType.name());
+		writeRating(dest, restaurant.comfortRating);
+		writeRating(dest, restaurant.qualityRating);
 		dest.writeString(restaurant.email);
 		dest.writeString(restaurant.phoneNumber);
 		dest.writeString(restaurant.oneLineAddress);
@@ -51,7 +51,8 @@ public class RestaurantData implements Parcelable {
 		description(in.readString()).
 		cuisine(in.readString()).
 		foodPrice(in.readString()).
-		rating(new RestaurantRating(in.readInt(), RestaurantRating.RatingType.valueOf(in.readString()))).
+		comfortRating(readRating(in)).
+		qualityRating(readRating(in)).
 		email(in.readString()).
 		phoneNumber(in.readString()).
 		oneLineAddress(in.readString()).
@@ -65,6 +66,25 @@ public class RestaurantData implements Parcelable {
 		return builder.build();
 	}
 	
+	private RestaurantRating readRating(Parcel in) {
+		if (in.readByte() != 0) {
+			return new RestaurantRating(in.readInt(), 
+					RestaurantRating.RatingType.valueOf(in.readString()),
+					in.readString()
+					);
+		}
+		return null;
+	}
+	
+	private void writeRating(Parcel dest, RestaurantRating rating) {
+		dest.writeByte(rating != null ? (byte)1 : (byte)0);
+		if (rating != null) {
+			dest.writeInt(rating.ratingValue);
+			dest.writeString(rating.ratingType.name());
+			dest.writeString(rating.description);
+		}
+	}
+
 	public Restaurant getRestaurant() {
 		return restaurant;
 	}
