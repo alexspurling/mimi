@@ -5,27 +5,22 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
 
-import com.javadocmd.simplelatlng.LatLng;
-import com.javadocmd.simplelatlng.LatLngTool;
-import com.javadocmd.simplelatlng.util.LengthUnit;
-
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.javadocmd.simplelatlng.LatLng;
+import com.javadocmd.simplelatlng.LatLngTool;
+import com.javadocmd.simplelatlng.util.LengthUnit;
 
 public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 
-	private static final int[] redStarImages = new int[] {
-			R.drawable.redforkandspoon_small_1,
-			R.drawable.redforkandspoon_small_2,
-			R.drawable.redforkandspoon_small_3,
-			R.drawable.redforkandspoon_small_4,
-			R.drawable.redforkandspoon_small_5};
-	
 	private final Random random = new Random();
 
 	private final LatLng curLocation;
@@ -43,14 +38,16 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		View rowView = inflater.inflate(R.layout.results, parent, false);
 
 		Restaurant restaurant = getItem(position);
+
+		Log.i(MimiLog.TAG, "Setting up view for restaurant: " + restaurant);
 		
 		//Set the restaurant name
 		TextView nameTextView = (TextView) rowView.findViewById(R.id.search_restaurant_name);
 		nameTextView.setText(getRestaurantName(restaurant));
 
 		//Set the images for the restaurant rating
-		ImageView starsImageView = (ImageView) rowView.findViewById(R.id.search_restaurant_stars);
-		setRestaurantStarsImageView(restaurant, starsImageView);
+		RelativeLayout relativeLayout = (RelativeLayout) rowView.findViewById(R.id.search_restaurant_title);
+		setRestaurantStarsImageView(restaurant, relativeLayout);
 		
 		//Set the restaurant details
 		TextView summaryTextView = (TextView) rowView.findViewById(R.id.search_restaurant_summary);
@@ -92,10 +89,25 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		return restaurant.description;
 	}
 	
-	private void setRestaurantStarsImageView(Restaurant restaurant, ImageView starsImageView) {
+	private void setRestaurantStarsImageView(Restaurant restaurant, RelativeLayout relativeLayout) {
 		int starRating = random.nextInt(5) + 1;
 
-		starsImageView.setImageResource(redStarImages[starRating-1]);
-		starsImageView.getLayoutParams().width = 20 * starRating;
+		Log.i(MimiLog.TAG, "Setting star images for rating " + starRating);
+		
+		View previousElement = relativeLayout.getChildAt(0);
+		
+		for (int i = 0; i < starRating; i++) {
+			ImageView starImage = new ImageView(getContext());
+			starImage.setId(ViewId.getInstance().getUniqueId()); //Need to set the id manually
+			starImage.setImageResource(R.drawable.redforkandspoon_small_1);
+			
+			RelativeLayout.LayoutParams imageLayout = new RelativeLayout.LayoutParams(20, 30);
+			imageLayout.addRule(RelativeLayout.RIGHT_OF, previousElement.getId());
+			imageLayout.addRule(RelativeLayout.CENTER_VERTICAL);
+			relativeLayout.addView(starImage, imageLayout);
+			
+			//Take a note of this image so we can refer to it in the next loop
+			previousElement = starImage;
+		}
 	}
 }

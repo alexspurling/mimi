@@ -73,7 +73,7 @@ public class SearchResults extends Activity {
     }
 
     private void handleIntent(Intent intent) {
-    	Log.i("Mimi", "Handling intent: " + intent);
+    	Log.i(MimiLog.TAG, "Doing something with intent: " + intent);
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             // handles a click on a search suggestion; launches activity to show word
             Intent wordIntent = new Intent(this, RestaurantDetailsActivity.class);
@@ -92,7 +92,7 @@ public class SearchResults extends Activity {
         // Display the number of results
         mTextView.setText("20 results for (your location)");
         
-        Log.i("Mimi", "List has " + restaurantList.size() + " elements");
+        Log.i(MimiLog.TAG, "List has " + restaurantList.size() + " elements");
 		final ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurantList, currentLocation);
         
         mListView.setAdapter(adapter);

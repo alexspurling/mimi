@@ -25,6 +25,7 @@
         android:padding="5dp">
 
 	<RelativeLayout
+	    android:id="@+id/search_restaurant_title"
 	    android:layout_width="fill_parent"
     	android:layout_height="wrap_content">
 
@@ -34,18 +35,9 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:paddingRight="10dp"
-	        android:text="Poissonnerie de l'Avenue"
+	        android:text="@string/sample_name"
         	android:layout_alignParentLeft="true" />
 
-	    <ImageView
-	        android:id="@+id/search_restaurant_stars"
-	        android:layout_width="20dp"
-	        android:layout_height="30dp"
-	        android:layout_gravity="center"
-	        android:layout_weight="1"
-	        android:src="@drawable/redforkandspoon_small_1"
-	        android:tag="stars1"
-        	android:layout_toRightOf="@id/search_restaurant_name" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -75,7 +67,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:singleLine="false"
-        android:text="Friendly, conscientiously run Chelsea local, where satisfying and carefully prepared pub classics are served in the roomy, civilised bar or in the warm, comfortable dining room at the back."
+        android:text="@string/sample_description"
          />
 
 </LinearLayout>
