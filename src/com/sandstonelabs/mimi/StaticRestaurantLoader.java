@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+
 import android.content.Context;
 import android.content.res.Resources;
 
@@ -20,7 +22,7 @@ public class StaticRestaurantLoader {
 		this.restaurantJsonParser = restaurantJsonParser;
 	}
 	
-	public List<Restaurant> loadRestaurants() throws IOException {
+	public List<Restaurant> loadRestaurants() throws IOException, JSONException {
         Resources resources = context.getResources();
         
         InputStream inputStream = resources.openRawResource(R.raw.staticrestaurants);

@@ -16,7 +16,6 @@
 
 package com.sandstonelabs.mimi;
 
-import java.io.IOException;
 import java.util.List;
 
 import android.app.Activity;
@@ -57,7 +56,7 @@ public class SearchResults extends Activity {
 		try {
 			StaticRestaurantLoader staticRestaurantLoader = new StaticRestaurantLoader(this, jsonParser);
 			restaurantList = staticRestaurantLoader.loadRestaurants();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Error in the restaurant cache search", e);
 		}
 
