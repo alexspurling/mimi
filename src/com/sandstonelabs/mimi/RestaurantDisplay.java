@@ -43,10 +43,13 @@ public class RestaurantDisplay {
 		return df.format(distance) + "km";
 	}
 	
-	public void setRatingImageView(Context context, RelativeLayout relativeLayout) {
+	public void setRatingImageView(Context context, RelativeLayout relativeLayout, View displayAfterView, View displayBeforeView) {
 		RestaurantRating rating = restaurant.rating;
 
-		View previousElement = relativeLayout.getChildAt(relativeLayout.getChildCount()-1);
+		//Nothing to set
+		if (rating == null) return;
+		
+		View previousView = displayAfterView;
 		
 		int ratingImageResource = getRatingImageResource(rating);
 		
@@ -56,12 +59,22 @@ public class RestaurantDisplay {
 			starImage.setImageResource(ratingImageResource);
 			
 			RelativeLayout.LayoutParams imageLayout = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			imageLayout.addRule(RelativeLayout.RIGHT_OF, previousElement.getId());
+			if (previousView != null) {
+				imageLayout.addRule(RelativeLayout.RIGHT_OF, previousView.getId());
+			}
 			imageLayout.addRule(RelativeLayout.CENTER_VERTICAL);
 			relativeLayout.addView(starImage, imageLayout);
 			
 			//Take a note of this image so we can refer to it in the next loop
-			previousElement = starImage;
+			previousView = starImage;
+		}
+		
+		if (displayBeforeView != null && previousView != null) {
+//			RelativeLayout.LayoutParams previousImageLayout = (RelativeLayout.LayoutParams) previousView.getLayoutParams();
+//			previousImageLayout.addRule(RelativeLayout.LEFT_OF, displayBeforeView.getId());
+//			
+			RelativeLayout.LayoutParams beforeImageLayout = (RelativeLayout.LayoutParams) displayBeforeView.getLayoutParams();
+			beforeImageLayout.addRule(RelativeLayout.RIGHT_OF, previousView.getId());
 		}
 	}
 

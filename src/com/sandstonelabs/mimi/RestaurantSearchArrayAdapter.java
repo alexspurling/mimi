@@ -37,7 +37,7 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 
 		//Set the images for the restaurant rating
 		RelativeLayout relativeLayout = (RelativeLayout) rowView.findViewById(R.id.search_restaurant_title);
-		restaurantDisplay.setRatingImageView(getContext(), relativeLayout);
+		restaurantDisplay.setRatingImageView(context, relativeLayout, nameTextView, null);
 		
 		//Set the restaurant details
 		TextView summaryTextView = (TextView) rowView.findViewById(R.id.search_restaurant_summary);

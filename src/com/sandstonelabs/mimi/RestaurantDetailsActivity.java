@@ -8,21 +8,25 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class RestaurantDetailsActivity extends Activity {
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.details);
 
-		TextView nameText = (TextView) findViewById(R.id.name);
-		TextView descriptionText = (TextView) findViewById(R.id.description);
-		TextView cuisineText = (TextView) findViewById(R.id.cuisine);
-		TextView foodPriceText = (TextView) findViewById(R.id.food_price);
-		Button locationButton = (Button) findViewById(R.id.location);
-		Button emailButton = (Button) findViewById(R.id.email);
-		Button callPhoneButton = (Button) findViewById(R.id.call);
+		TextView nameText = (TextView) findViewById(R.id.details_name);
+		RelativeLayout ratingLayout = (RelativeLayout) findViewById(R.id.details_restaurant_rating);
+		TextView ratingDescriptionText = (TextView) findViewById(R.id.details_rating_description);
+		TextView descriptionText = (TextView) findViewById(R.id.details_description);
+		TextView cuisineText = (TextView) findViewById(R.id.details_cuisine);
+		TextView foodPriceText = (TextView) findViewById(R.id.details_food_price);
+		Button locationButton = (Button) findViewById(R.id.details_location);
+		Button emailButton = (Button) findViewById(R.id.details_email);
+		Button callPhoneButton = (Button) findViewById(R.id.details_call);
 
 		RestaurantData restaurantData = getIntent().getParcelableExtra("restaurant");
 		final Restaurant restaurant = restaurantData.getRestaurant();
@@ -30,6 +34,7 @@ public class RestaurantDetailsActivity extends Activity {
 		RestaurantDisplay restaurantDisplay = new RestaurantDisplay(restaurant);
 		
 		nameText.setText(restaurant.name);
+		restaurantDisplay.setRatingImageView(this, ratingLayout, null, ratingDescriptionText);
 		descriptionText.setText(restaurant.description);
 		cuisineText.setText(restaurantDisplay.getCuisine());
 		foodPriceText.setText(restaurant.foodPrice);

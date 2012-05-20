@@ -11,15 +11,30 @@
 	    android:padding="5dp" >
 	
 	    <TextView
-	        android:id="@+id/name"
+	        android:id="@+id/details_name"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/sample_name"
 	        android:textColor="?android:textColorPrimary"
 	        android:textSize="30dp" />
 	
+		<RelativeLayout
+		    android:id="@+id/details_restaurant_rating"
+		    android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content">
+	
+		    <!-- Restaurant Rating will be inserted here -->
+		    <TextView
+		        android:id="@+id/details_rating_description"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+	        	android:paddingLeft="10dp"
+		        android:text="@string/sample_rating_description"
+		        android:textColor="?android:textColorSecondary"
+		        android:textSize="14dp" />
+		</RelativeLayout>
 	    <TextView
-	        android:id="@+id/description"
+	        android:id="@+id/details_description"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:paddingTop="10dp"
@@ -28,7 +43,7 @@
 	        android:textSize="16dp" />
 	
 	    <TextView
-	        android:id="@+id/cuisine"
+	        android:id="@+id/details_cuisine"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:paddingTop="10dp"
@@ -37,7 +52,7 @@
 	        android:textSize="14dp" />
 	
 	    <TextView
-	        android:id="@+id/food_price"
+	        android:id="@+id/details_food_price"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/sample_food_price"
@@ -45,7 +60,7 @@
 	        android:textSize="14dp" />
 	
 	    <TextView
-	        android:id="@+id/address"
+	        android:id="@+id/details_address"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/sample_address"
@@ -53,7 +68,7 @@
 	        android:textSize="14dp" />
 	
 	    <Button
-	        android:id="@+id/location"
+	        android:id="@+id/details_location"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:drawableLeft="@android:drawable/ic_menu_mylocation"
@@ -65,7 +80,7 @@
 	        android:text="@string/sample_location" />
 	
 	    <Button
-	        android:id="@+id/email"
+	        android:id="@+id/details_email"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:drawableLeft="@android:drawable/ic_menu_info_details"
@@ -76,7 +91,7 @@
 	        android:text="@string/sample_email" />
 	    
 	    <Button
-	        android:id="@+id/call"
+	        android:id="@+id/details_call"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:drawableLeft="@android:drawable/ic_menu_call"
