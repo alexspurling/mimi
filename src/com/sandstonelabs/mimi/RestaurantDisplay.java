@@ -4,6 +4,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 import android.content.Context;
+import android.location.Location;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -37,9 +38,10 @@ public class RestaurantDisplay {
 		return restaurant.cuisine;
 	}
 	
-	public String getDistance(LatLng curLocation) {
+	public String getDistance(Location location) {
+		LatLng searchLocation = new LatLng(location.getLatitude(), location.getLongitude());
 		LatLng restaurantLocation = new LatLng(restaurant.latitude, restaurant.longitude);
-		double distance = LatLngTool.distance(curLocation, restaurantLocation, LengthUnit.KILOMETER);
+		double distance = LatLngTool.distance(searchLocation, restaurantLocation, LengthUnit.KILOMETER);
 		DecimalFormat df = new DecimalFormat("#.#");
 		df.setRoundingMode(RoundingMode.HALF_UP);
 		return df.format(distance) + "km";

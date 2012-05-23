@@ -3,6 +3,7 @@ package com.sandstonelabs.mimi;
 import java.util.List;
 
 import android.content.Context;
+import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +11,13 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.javadocmd.simplelatlng.LatLng;
-
 public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 
-	private final LatLng curLocation;
+	private final Location location;
 
-	public RestaurantSearchArrayAdapter(Context context, List<Restaurant> restaurants, LatLng curLocation) {
+	public RestaurantSearchArrayAdapter(Context context, List<Restaurant> restaurants, Location location) {
 		super(context, R.layout.results, restaurants);
-		this.curLocation = curLocation;
+		this.location = location;
 	}
 
 	@Override
@@ -45,7 +44,7 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		
 		//Set the restaurant distance
 		TextView distanceTextView = (TextView) rowView.findViewById(R.id.search_restaurant_distance);
-		distanceTextView.setText(restaurantDisplay.getDistance(curLocation));
+		distanceTextView.setText(restaurantDisplay.getDistance(location));
 		
 		//Set the restaurant description
 		TextView descriptionTextView = (TextView) rowView.findViewById(R.id.search_restaurant_description);

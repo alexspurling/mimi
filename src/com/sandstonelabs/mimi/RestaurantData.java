@@ -95,10 +95,12 @@ public class RestaurantData implements Parcelable {
 	}
 
 	public static final Parcelable.Creator<RestaurantData> CREATOR = new Parcelable.Creator<RestaurantData>() {
+		@Override
 		public RestaurantData createFromParcel(Parcel in) {
 			return new RestaurantData(in);
 		}
 
+		@Override
 		public RestaurantData[] newArray(int size) {
 			return new RestaurantData[size];
 		}

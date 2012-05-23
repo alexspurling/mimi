@@ -19,7 +19,12 @@ package com.sandstonelabs.mimi;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,8 +33,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.javadocmd.simplelatlng.LatLng;
 
 /**
  * This activity displays the results of a location based restaurant search.
@@ -40,30 +43,79 @@ public class RestaurantSearchResults extends Activity {
 
     private TextView mTextView;
     private ListView mListView;
-    private List<Restaurant> restaurantList;
-    private LatLng currentLocation;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
+        
         mTextView = (TextView) findViewById(R.id.text);
         mListView = (ListView) findViewById(R.id.list);
-
-        currentLocation = new LatLng(51.492713, -0.166243);
-        RestaurantJsonParser jsonParser = new RestaurantJsonParser();
-		try {
-			StaticRestaurantLoader staticRestaurantLoader = new StaticRestaurantLoader(this, jsonParser);
-			restaurantList = staticRestaurantLoader.loadRestaurants();
-		} catch (Exception e) {
-			throw new RuntimeException("Error in the restaurant cache search", e);
-		}
 
         handleIntent(getIntent());
     }
 
-    @Override
+	private void setupLocationListener() {
+		// Acquire a reference to the system Location Manager
+		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+		// Define a listener that responds to location updates
+		LocationListener locationListener = new LocationListener() {
+			@Override
+			public void onLocationChanged(Location location) {
+				// Called when a new location is found by the network location provider.
+	            showResults(location);
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status, Bundle extras) {
+			}
+
+			@Override
+			public void onProviderEnabled(String provider) {
+			}
+
+			@Override
+			public void onProviderDisabled(String provider) {
+			}
+		};
+		
+		Log.i(MimiLog.TAG, "All location providers: " + locationManager.getAllProviders());
+		
+		String provider = LocationManager.NETWORK_PROVIDER;
+		if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
+			provider = LocationManager.NETWORK_PROVIDER;
+		}else{
+			provider = getFakeLocationProvider(locationManager);
+		}
+		
+		Log.i(MimiLog.TAG, "Requesting location updates from provider " + provider);
+		
+		// Register the listener with the Location Manager to receive location
+		// updates
+		locationManager.requestLocationUpdates(provider, 0, 0, locationListener);
+		
+		//Get the last available location to display results from for now
+		Location location = locationManager.getLastKnownLocation(provider);
+		if (location != null) {
+			showResults(location);
+		}
+	}
+
+	private String getFakeLocationProvider(LocationManager locationManager) {
+		String providerName = "TestProvider";
+		if (locationManager.getProvider(providerName) == null) {
+			locationManager.addTestProvider(providerName, true, false, true, false, true, false, false, Criteria.POWER_HIGH, Criteria.ACCURACY_LOW);
+		}
+		locationManager.setTestProviderEnabled(providerName, true);
+		Location fakeLocation = new Location(providerName);
+		fakeLocation.setLatitude(51.492713);
+		fakeLocation.setLongitude(-0.166243);
+		locationManager.setTestProviderLocation(providerName, fakeLocation);
+		return providerName;
+	}
+
+	@Override
     protected void onNewIntent(Intent intent) {
         // Because this activity has set launchMode="singleTop", the system calls this method
         // to deliver the intent if this activity is currently the foreground activity when
@@ -74,26 +126,39 @@ public class RestaurantSearchResults extends Activity {
 
     private void handleIntent(Intent intent) {
     	Log.i(MimiLog.TAG, "Doing something with intent: " + intent);
-        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
-            // handles a click on a search suggestion; launches activity to show word
-            Intent wordIntent = new Intent(this, RestaurantDetailsActivity.class);
-            wordIntent.setData(intent.getData());
-            startActivity(wordIntent);
-        } else {
-            showResults();
-        }
+        showLoadingScreen();
+        setupLocationListener();
+    }
+    
+    private void showLoadingScreen() {
+        // Display the number of results
+        mTextView.setText("Loading your current location...");
+	}
+
+	private List<Restaurant> getRestaurantsForLocation(Location location) {
+        RestaurantJsonParser jsonParser = new RestaurantJsonParser();
+		try {
+			Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
+			StaticRestaurantLoader staticRestaurantLoader = new StaticRestaurantLoader(this, jsonParser);
+			return staticRestaurantLoader.loadRestaurants();
+		} catch (Exception e) {
+			throw new RuntimeException("Error in the restaurant cache search", e);
+		}
     }
 
     /**
      * Searches the dictionary and displays results for the given query.
      * @param query The search query
      */
-    private void showResults() {
+    private void showResults(Location location) {
+    	
+    	List<Restaurant> restaurants = getRestaurantsForLocation(location);
+    	
         // Display the number of results
-        mTextView.setText("20 results for (your location)");
+        mTextView.setText(restaurants.size() + " results for location from " + location.getProvider());
         
-        Log.i(MimiLog.TAG, "List has " + restaurantList.size() + " elements");
-		final ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurantList, currentLocation);
+        Log.i(MimiLog.TAG, "List has " + restaurants.size() + " elements");
+		final ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurants, location);
         
         mListView.setAdapter(adapter);
 
