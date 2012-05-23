@@ -36,7 +36,7 @@ import com.javadocmd.simplelatlng.LatLng;
  * Displays search results triggered by the search dialog and handles
  * actions from search suggestions.
  */
-public class SearchResults extends Activity {
+public class RestaurantSearchResults extends Activity {
 
     private TextView mTextView;
     private ListView mListView;

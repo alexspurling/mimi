@@ -13,7 +13,7 @@
                  android:icon="@drawable/ic_launcher">
 
         <!-- The default activity of the app; displays search results. -->
-        <activity android:name=".SearchResults"
+        <activity android:name=".RestaurantSearchResults"
                   android:launchMode="singleTop">
 
             <intent-filter>
