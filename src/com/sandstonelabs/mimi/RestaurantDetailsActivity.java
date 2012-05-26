@@ -43,9 +43,9 @@ public class RestaurantDetailsActivity extends Activity {
 		restaurantDisplay.setRatingWithDescription(restaurant.qualityRating, this, qualityRatingLayout, qualityRatingView, qualityRatingDescriptionText);
 		
 		descriptionText.setText(restaurant.description);
-		cuisineText.setText(restaurantDisplay.getCuisine());
+		cuisineText.setText(restaurant.cuisine);
 		foodPriceText.setText(restaurant.foodPrice);
-		emailButton.setText(getLengthRestrictedString(restaurant.email, 28));
+		emailButton.setText(getLengthRestrictedString(restaurant.email, 27));
 		callPhoneButton.setText(restaurant.phoneNumber);
 		
 		locationButton.setOnClickListener(new View.OnClickListener() {

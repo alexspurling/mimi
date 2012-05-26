@@ -33,6 +33,8 @@ public class MimiRestaurantService {
 		File cacheFile = new File(context.getCacheDir(), "mimi-cache.txt");
 		RestaurantJsonCache restaurantJsonCache = new RestaurantJsonCache(cacheFile, jsonParser);
 
+		Log.i(MimiLog.TAG, "Using cache file: " + cacheFile.getCanonicalPath());
+		
 		// Load some static data and put it in the cache
 		StaticRestaurantLoader staticRestaurantLoader = new StaticRestaurantLoader(context, jsonParser);
 		List<String> restaurantJson = staticRestaurantLoader.loadRestaurantJson();
@@ -43,25 +45,25 @@ public class MimiRestaurantService {
 		return new RestaurantService(restaurantApiSearch, restaurantJsonCache);
 	}
 
-	public void loadRestaurantsForLocation(Location location) {
+	public void loadRestaurantsForLocation(Location location, int maxResults) {
 		Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
 
 		ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
-			Log.i(MimiLog.TAG, "Getting restaurants from network");
-			new FetchRestaurantsTask().execute(location);
+			Log.i(MimiLog.TAG, "Getting restaurants from api");
+			new FetchRestaurantsTask().execute(location, maxResults);
 		} else {
 			Log.i(MimiLog.TAG, "Getting restaurants from cache");
-			fetchRestaurantsFromCache(location);
+			fetchRestaurantsFromCache(location, maxResults);
 		}
 	}
 	
-	private void fetchRestaurantsFromCache(Location location) {
+	private void fetchRestaurantsFromCache(Location location, int maxResults) {
 		float latitude = (float) location.getLatitude();
 		float longitude = (float) location.getLongitude();
 		try {
-			List<Restaurant> cachedRestaurants = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, maxDistance);
+			List<Restaurant> cachedRestaurants = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, maxDistance, maxResults);
 			restaurantListener.onRestaurantsLoaded(cachedRestaurants, location);
 		}catch (IOException e) {
 			//TODO handle error properly
@@ -69,18 +71,18 @@ public class MimiRestaurantService {
 		}
 	}
 
-	// Implementation of AsyncTask used to download XML feed from stackoverflow.com.
-	private class FetchRestaurantsTask extends AsyncTask<Location, Void, List<Restaurant>> {
+	private class FetchRestaurantsTask extends AsyncTask<Object, Void, List<Restaurant>> {
 
 		private Location location;
 		
 		@Override
-	    protected List<Restaurant> doInBackground(Location... locations) {
-			location = locations[0];
+	    protected List<Restaurant> doInBackground(Object... params) {
+			location = (Location)params[0];
+			int maxResults = (Integer)params[1];
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
         	try {
-				return restaurantService.getApiRestaurantsAtLocation(latitude, longitude, maxDistance);
+				return restaurantService.getApiRestaurantsAtLocation(latitude, longitude, maxDistance, maxResults);
 			} catch (IOException e) {
 				//TODO handle error properly
 				throw new RuntimeException("Error downloading results from api", e);

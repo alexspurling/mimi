@@ -45,7 +45,7 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 		
 		//Set the restaurant details
 		TextView summaryTextView = (TextView) rowView.findViewById(R.id.search_restaurant_summary);
-		summaryTextView.setText(restaurantDisplay.getCuisine());
+		summaryTextView.setText(restaurant.cuisine);
 		
 		//Set the restaurant distance
 		TextView distanceTextView = (TextView) rowView.findViewById(R.id.search_restaurant_distance);

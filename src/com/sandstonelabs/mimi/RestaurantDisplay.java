@@ -29,15 +29,6 @@ public class RestaurantDisplay {
 		this.restaurant = restaurant;
 	}
 	
-	public String getCuisine() {
-		char firstLetter = restaurant.cuisine.charAt(0);
-		//TODO: DO this transformation when parsing the raw data!
-		if (Character.isLowerCase(firstLetter)) {
-			return Character.toUpperCase(firstLetter) + restaurant.cuisine.substring(1);
-		}
-		return restaurant.cuisine;
-	}
-	
 	public String getDistance(Location location) {
 		LatLng searchLocation = new LatLng(location.getLatitude(), location.getLongitude());
 		LatLng restaurantLocation = new LatLng(restaurant.latitude, restaurant.longitude);

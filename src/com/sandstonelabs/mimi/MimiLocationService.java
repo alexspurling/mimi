@@ -24,7 +24,7 @@ public class MimiLocationService {
 		this.locationChangeListener = locationChangeListener;
 		setUpLocationManager(context);
 		//Should only be used for testing purposes - otherwise rely on the LocationManager refresh behaviour
-		setUpRegularLocationRefresh();
+		//setUpRegularLocationRefresh();
 	}
 
 	private void setUpLocationManager(Context context) {
@@ -85,7 +85,7 @@ public class MimiLocationService {
 		}
 	}
 	
-	private Location getRandomLocation() {
+	public Location getRandomLocation() {
 		Location fakeLocation = new Location("RandomLocation");
 		float maxLatitude = 51.484f;
 		float minLongitude = -0.189f;
