@@ -16,13 +16,10 @@
 
 package com.sandstonelabs.mimi;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -41,7 +38,7 @@ import android.widget.TextView;
  * Displays search results triggered by the search dialog and handles actions
  * from search suggestions.
  */
-public class RestaurantSearchResults extends Activity implements LocationChangeListener {
+public class RestaurantSearchResults extends Activity implements LocationChangeListener, RestaurantListener {
 
 	/** The number of restaurants to find before updating the display */
 	private static final int MIN_REFRESH_COUNT = 0;
@@ -49,7 +46,7 @@ public class RestaurantSearchResults extends Activity implements LocationChangeL
 	private TextView mTextView;
 	private ListView mListView;
 	private Set<Restaurant> currentRestaurantsSet;
-	private RestaurantService restaurantService;
+	private MimiRestaurantService restaurantService;
 	private MimiLocationService locationService;
 
 	@Override
@@ -61,31 +58,14 @@ public class RestaurantSearchResults extends Activity implements LocationChangeL
 		mListView = (ListView) findViewById(R.id.list);
 
 		try {
-			restaurantService = setupRestaurantService();
-		} catch (Exception e) {
+			restaurantService = new MimiRestaurantService(this, this);
+		} catch (IOException e) {
 			throw new RuntimeException("Could not instantiate restaurant service", e);
 		}
 		
 		locationService = new MimiLocationService(this, this);
 
 		handleIntent(getIntent());
-	}
-
-	private RestaurantService setupRestaurantService() throws IOException, JSONException {
-		RestaurantJsonParser jsonParser = new RestaurantJsonParser();
-
-		// Create the cache
-		File cacheFile = new File(this.getCacheDir(), "mimi-cache.txt");
-		RestaurantJsonCache restaurantJsonCache = new RestaurantJsonCache(cacheFile, jsonParser);
-
-		// Load some static data and put it in the cache
-		StaticRestaurantLoader staticRestaurantLoader = new StaticRestaurantLoader(this, jsonParser);
-		List<String> restaurantJson = staticRestaurantLoader.loadRestaurantJson();
-		restaurantJsonCache.storeResultsInCache(restaurantJson);
-
-		// Return a new restaurant service using the new cache object
-		ApiRestaurantSearch restaurantApiSearch = null;
-		return new RestaurantService(restaurantApiSearch, restaurantJsonCache);
 	}
 
 	@Override
@@ -104,7 +84,7 @@ public class RestaurantSearchResults extends Activity implements LocationChangeL
 		// Get the last available location to display results
 		Location location = locationService.getLastKnownLocation();
 		if (location != null) {
-			getAndDisplayResults(location);
+			onLocationChanged(location);
 		}
 	}
 
@@ -115,25 +95,11 @@ public class RestaurantSearchResults extends Activity implements LocationChangeL
 
 	@Override
 	public void onLocationChanged(Location location) {
-		getAndDisplayResults(location);
+		restaurantService.loadRestaurantsForLocation(location);
 	}
 
-	private List<Restaurant> getRestaurantsForLocation(Location location) {
-		try {
-			Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
-			float latitude = (float) location.getLatitude();
-			float longitude = (float) location.getLongitude();
-			int maxDistance = 10000; // 10km
-			return restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, maxDistance);
-		} catch (Exception e) {
-			throw new RuntimeException("Error in the restaurant cache search", e);
-		}
-	}
-
-	private void getAndDisplayResults(Location location) {
-
-		List<Restaurant> restaurants = getRestaurantsForLocation(location);
-
+	@Override
+	public void onRestaurantsLoaded(List<Restaurant> restaurants, Location location) {
 		int newRestaurants = countNewRestaurants(restaurants);
 
 		// Only refresh if we have a sufficient number of new items to display
