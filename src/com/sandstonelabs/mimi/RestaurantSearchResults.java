@@ -16,7 +16,9 @@
 
 package com.sandstonelabs.mimi;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
@@ -41,8 +43,10 @@ import android.widget.TextView;
  */
 public class RestaurantSearchResults extends Activity {
 
-    private TextView mTextView;
+    private static final int MIN_REFRESH_COUNT = 5;
+	private TextView mTextView;
     private ListView mListView;
+    private Set<Restaurant> currentRestaurantsSet;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +68,7 @@ public class RestaurantSearchResults extends Activity {
 			@Override
 			public void onLocationChanged(Location location) {
 				// Called when a new location is found by the network location provider.
-	            showResults(location);
+	            getAndDisplayResults(location);
 			}
 
 			@Override
@@ -98,7 +102,7 @@ public class RestaurantSearchResults extends Activity {
 		//Get the last available location to display results from for now
 		Location location = locationManager.getLastKnownLocation(provider);
 		if (location != null) {
-			showResults(location);
+			getAndDisplayResults(location);
 		}
 	}
 
@@ -146,16 +150,36 @@ public class RestaurantSearchResults extends Activity {
 		}
     }
 
-    /**
-     * Searches the dictionary and displays results for the given query.
-     * @param query The search query
-     */
-    private void showResults(Location location) {
+    private void getAndDisplayResults(Location location) {
     	
     	List<Restaurant> restaurants = getRestaurantsForLocation(location);
     	
+    	int newRestaurants = countNewRestaurants(restaurants);
+    	
+    	//Only refresh if we have a sufficient number of new items to display
+    	if (newRestaurants >= MIN_REFRESH_COUNT) {
+    		displayResults(restaurants, location);
+    	}
+    }
+
+    //Returns the number of restaurants in the given list that are not already currently being displayed
+    private int countNewRestaurants(List<Restaurant> restaurants) {
+    	if (currentRestaurantsSet == null || currentRestaurantsSet.isEmpty()) {
+    		return restaurants.size();
+    	}
+    	int count = 0;
+		for (Restaurant restaurant : restaurants) {
+			if (currentRestaurantsSet.contains(restaurant)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	private void displayResults(List<Restaurant> restaurants, Location location) {
+    	
         // Display the number of results
-        mTextView.setText(restaurants.size() + " results for location from " + location.getProvider());
+        mTextView.setText(restaurants.size() + " results for your location");
         
         Log.i(MimiLog.TAG, "List has " + restaurants.size() + " elements");
 		final ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurants, location);
@@ -178,5 +202,7 @@ public class RestaurantSearchResults extends Activity {
                 startActivity(restaurantIntent);
             }
         });
+        
+        currentRestaurantsSet = new HashSet<Restaurant>(restaurants);
     }
 }
