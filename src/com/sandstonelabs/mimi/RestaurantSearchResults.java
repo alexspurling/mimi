@@ -25,12 +25,8 @@ import java.util.Set;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,133 +38,84 @@ import android.widget.TextView;
 
 /**
  * This activity displays the results of a location based restaurant search.
- * Displays search results triggered by the search dialog and handles
- * actions from search suggestions.
+ * Displays search results triggered by the search dialog and handles actions
+ * from search suggestions.
  */
-public class RestaurantSearchResults extends Activity {
+public class RestaurantSearchResults extends Activity implements LocationChangeListener {
 
 	/** The number of restaurants to find before updating the display */
-    private static final int MIN_REFRESH_COUNT = 5;
-	private static final long MIN_LOCATION_REFRESH_TIME = 60000; //In ms
-	private static final float MIN_LOCATION_REFRESH_DISTANCE = 100; //In m
-	
-	private TextView mTextView;
-    private ListView mListView;
-    private Set<Restaurant> currentRestaurantsSet;
-	private RestaurantService restaurantService;
-    
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        
-        mTextView = (TextView) findViewById(R.id.text);
-        mListView = (ListView) findViewById(R.id.list);
+	private static final int MIN_REFRESH_COUNT = 0;
 
-        try {
+	private TextView mTextView;
+	private ListView mListView;
+	private Set<Restaurant> currentRestaurantsSet;
+	private RestaurantService restaurantService;
+	private MimiLocationService locationService;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+
+		mTextView = (TextView) findViewById(R.id.text);
+		mListView = (ListView) findViewById(R.id.list);
+
+		try {
 			restaurantService = setupRestaurantService();
 		} catch (Exception e) {
 			throw new RuntimeException("Could not instantiate restaurant service", e);
 		}
-        
-        handleIntent(getIntent());
-    }
+		
+		locationService = new MimiLocationService(this, this);
+
+		handleIntent(getIntent());
+	}
 
 	private RestaurantService setupRestaurantService() throws IOException, JSONException {
-        RestaurantJsonParser jsonParser = new RestaurantJsonParser();
-        
-        //Create the cache
-        File cacheFile = new File(this.getCacheDir(), "mimi-cache.txt");
+		RestaurantJsonParser jsonParser = new RestaurantJsonParser();
+
+		// Create the cache
+		File cacheFile = new File(this.getCacheDir(), "mimi-cache.txt");
 		RestaurantJsonCache restaurantJsonCache = new RestaurantJsonCache(cacheFile, jsonParser);
-		
-		//Load some static data and put it in the cache
+
+		// Load some static data and put it in the cache
 		StaticRestaurantLoader staticRestaurantLoader = new StaticRestaurantLoader(this, jsonParser);
 		List<String> restaurantJson = staticRestaurantLoader.loadRestaurantJson();
 		restaurantJsonCache.storeResultsInCache(restaurantJson);
-		
-		//Return a new restaurant service using the new cache object
+
+		// Return a new restaurant service using the new cache object
 		ApiRestaurantSearch restaurantApiSearch = null;
 		return new RestaurantService(restaurantApiSearch, restaurantJsonCache);
 	}
 
-	private void setupLocationListener() {
-		// Acquire a reference to the system Location Manager
-		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+	@Override
+	protected void onNewIntent(Intent intent) {
+		// Because this activity has set launchMode="singleTop", the system calls this method
+		// to deliver the intent if this activity is currently the foreground activity when
+		// invoked again (when the user executes a search from this activity, we don't create
+		// a new instance of this activity, so the system delivers the search intent here)
+		handleIntent(intent);
+	}
 
-		// Define a listener that responds to location updates
-		LocationListener locationListener = new LocationListener() {
-			@Override
-			public void onLocationChanged(Location location) {
-				// Called when a new location is found by the network location provider.
-	            getAndDisplayResults(location);
-			}
+	private void handleIntent(Intent intent) {
+		Log.i(MimiLog.TAG, "Doing something with intent: " + intent);
+		showLoadingScreen();
 
-			@Override
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-			}
-
-			@Override
-			public void onProviderEnabled(String provider) {
-			}
-
-			@Override
-			public void onProviderDisabled(String provider) {
-			}
-		};
-		
-		Log.i(MimiLog.TAG, "All location providers: " + locationManager.getAllProviders());
-		
-		String provider = LocationManager.NETWORK_PROVIDER;
-		if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
-			provider = LocationManager.NETWORK_PROVIDER;
-		}else{
-			provider = getFakeLocationProvider(locationManager);
-		}
-		
-		Log.i(MimiLog.TAG, "Requesting location updates from provider " + provider);
-		
-		// Register the listener with the Location Manager to receive location
-		// updates
-		locationManager.requestLocationUpdates(provider, MIN_LOCATION_REFRESH_TIME, MIN_LOCATION_REFRESH_DISTANCE, locationListener);
-		
-		//Get the last available location to display results from for now
-		Location location = locationManager.getLastKnownLocation(provider);
+		// Get the last available location to display results
+		Location location = locationService.getLastKnownLocation();
 		if (location != null) {
 			getAndDisplayResults(location);
 		}
 	}
 
-	private String getFakeLocationProvider(LocationManager locationManager) {
-		String providerName = "TestProvider";
-		if (locationManager.getProvider(providerName) == null) {
-			locationManager.addTestProvider(providerName, true, false, true, false, true, false, false, Criteria.POWER_HIGH, Criteria.ACCURACY_LOW);
-		}
-		locationManager.setTestProviderEnabled(providerName, true);
-		Location fakeLocation = new Location(providerName);
-		fakeLocation.setLatitude(51.492713);
-		fakeLocation.setLongitude(-0.166243);
-		locationManager.setTestProviderLocation(providerName, fakeLocation);
-		return providerName;
+	private void showLoadingScreen() {
+		// Display the number of results
+		mTextView.setText("Loading your current location...");
 	}
 
 	@Override
-    protected void onNewIntent(Intent intent) {
-        // Because this activity has set launchMode="singleTop", the system calls this method
-        // to deliver the intent if this activity is currently the foreground activity when
-        // invoked again (when the user executes a search from this activity, we don't create
-        // a new instance of this activity, so the system delivers the search intent here)
-        handleIntent(intent);
-    }
-
-    private void handleIntent(Intent intent) {
-    	Log.i(MimiLog.TAG, "Doing something with intent: " + intent);
-        showLoadingScreen();
-        setupLocationListener();
-    }
-    
-    private void showLoadingScreen() {
-        // Display the number of results
-        mTextView.setText("Loading your current location...");
+	public void onLocationChanged(Location location) {
+		getAndDisplayResults(location);
 	}
 
 	private List<Restaurant> getRestaurantsForLocation(Location location) {
@@ -176,31 +123,32 @@ public class RestaurantSearchResults extends Activity {
 			Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
-			int maxDistance = 10000; //10km
+			int maxDistance = 10000; // 10km
 			return restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, maxDistance);
 		} catch (Exception e) {
 			throw new RuntimeException("Error in the restaurant cache search", e);
 		}
-    }
+	}
 
-    private void getAndDisplayResults(Location location) {
-    	
-    	List<Restaurant> restaurants = getRestaurantsForLocation(location);
-    	
-    	int newRestaurants = countNewRestaurants(restaurants);
-    	
-    	//Only refresh if we have a sufficient number of new items to display
-    	if (newRestaurants >= MIN_REFRESH_COUNT) {
-    		displayResults(restaurants, location);
-    	}
-    }
+	private void getAndDisplayResults(Location location) {
 
-    //Returns the number of restaurants in the given list that are not already currently being displayed
-    private int countNewRestaurants(List<Restaurant> restaurants) {
-    	if (currentRestaurantsSet == null || currentRestaurantsSet.isEmpty()) {
-    		return restaurants.size();
-    	}
-    	int count = 0;
+		List<Restaurant> restaurants = getRestaurantsForLocation(location);
+
+		int newRestaurants = countNewRestaurants(restaurants);
+
+		// Only refresh if we have a sufficient number of new items to display
+		if (newRestaurants >= MIN_REFRESH_COUNT) {
+			displayResults(restaurants, location);
+		}
+	}
+
+	// Returns the number of restaurants in the given list that are not already
+	// currently being displayed
+	private int countNewRestaurants(List<Restaurant> restaurants) {
+		if (currentRestaurantsSet == null || currentRestaurantsSet.isEmpty()) {
+			return restaurants.size();
+		}
+		int count = 0;
 		for (Restaurant restaurant : restaurants) {
 			if (currentRestaurantsSet.contains(restaurant)) {
 				count++;
@@ -210,32 +158,33 @@ public class RestaurantSearchResults extends Activity {
 	}
 
 	private void displayResults(List<Restaurant> restaurants, Location location) {
-    	
-        // Display the number of results
-        mTextView.setText(restaurants.size() + " results for your location");
-        
-        Log.i(MimiLog.TAG, "List has " + restaurants.size() + " elements");
+
+		// Display the number of results
+		mTextView.setText(restaurants.size() + " results for your location");
+
+		Log.i(MimiLog.TAG, "List has " + restaurants.size() + " elements");
 		final ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurants, location);
-        
-        mListView.setAdapter(adapter);
 
-        // Define the on-click listener for the list items
-        mListView.setOnItemClickListener(new OnItemClickListener() {
+		mListView.setAdapter(adapter);
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            	mTextView.setText("Selected " + id);
-            	// Build the Intent used to open WordActivity with a specific word Uri
-                Intent restaurantIntent = new Intent(getApplicationContext(), RestaurantDetailsActivity.class);
-                
-                Restaurant restaurant = adapter.getItem(position);
-                
-                restaurantIntent.putExtra("restaurant", new RestaurantData(restaurant));
-				
-                startActivity(restaurantIntent);
-            }
-        });
-        
-        currentRestaurantsSet = new HashSet<Restaurant>(restaurants);
-    }
+		// Define the on-click listener for the list items
+		mListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				mTextView.setText("Selected " + id);
+				// Build the Intent used to open WordActivity with a specific
+				// word Uri
+				Intent restaurantIntent = new Intent(getApplicationContext(), RestaurantDetailsActivity.class);
+
+				Restaurant restaurant = adapter.getItem(position);
+
+				restaurantIntent.putExtra("restaurant", new RestaurantData(restaurant));
+
+				startActivity(restaurantIntent);
+			}
+		});
+
+		currentRestaurantsSet = new HashSet<Restaurant>(restaurants);
+	}
 }
