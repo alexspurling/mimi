@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.json.JSONException;
-
 import android.content.Context;
 import android.location.Location;
 import android.net.ConnectivityManager;
