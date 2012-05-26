@@ -22,20 +22,32 @@ public class StaticRestaurantLoader {
 		this.restaurantJsonParser = restaurantJsonParser;
 	}
 	
-	public List<Restaurant> loadRestaurants() throws IOException, JSONException {
+	public List<String> loadRestaurantJson() throws IOException {
         Resources resources = context.getResources();
         
         InputStream inputStream = resources.openRawResource(R.raw.staticrestaurants);
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-        List<Restaurant> restaurants = new ArrayList<Restaurant>();
+        List<String> restaurantJson = new ArrayList<String>();
         try {
             String line;
             while ((line = reader.readLine()) != null) {
-            	restaurants.add(restaurantJsonParser.parseRestaurantSearchResultsFromJson(line));
+            	restaurantJson.add(line);
             }
         } finally {
             reader.close();
+        }
+        return restaurantJson;
+	}
+	
+	public List<Restaurant> loadRestaurants() throws IOException, JSONException {
+		
+		List<String> restaurantJson = loadRestaurantJson();
+		
+        List<Restaurant> restaurants = new ArrayList<Restaurant>();
+        
+        for (String json : restaurantJson) {
+        	restaurants.add(restaurantJsonParser.parseRestaurantSearchResultsFromJson(json));
         }
         return restaurants;
 	}
