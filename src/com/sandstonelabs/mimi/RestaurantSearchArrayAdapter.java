@@ -23,9 +23,14 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Context context = getContext();
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-		View rowView = inflater.inflate(R.layout.results, parent, false);
+		
+		View rowView;
+		if (convertView == null) {
+			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			rowView = inflater.inflate(R.layout.results, parent, false);
+		}else{
+			rowView = convertView;
+		}
 
 		Restaurant restaurant = getItem(position);
 
