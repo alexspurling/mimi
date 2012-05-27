@@ -67,8 +67,10 @@ public class MimiLocationService {
 	public Location getLastKnownLocation() {
 		if (provider != null) {
 			return locationManager.getLastKnownLocation(provider);
+		}else{
+			//Used for testing
+			return getRandomLocation();
 		}
-		return null;
 	}
 
 	private void setUpRegularLocationRefresh() {

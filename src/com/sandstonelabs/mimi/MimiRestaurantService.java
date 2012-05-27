@@ -52,7 +52,11 @@ public class MimiRestaurantService {
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			Log.i(MimiLog.TAG, "Getting restaurants from api");
-			new FetchRestaurantsTask().execute(location, maxResults);
+			
+			//Calculate the page number based on the number of results
+			int page = (maxResults-1)/20+1;
+			
+			new FetchRestaurantsTask().execute(location, page);
 		} else {
 			Log.i(MimiLog.TAG, "Getting restaurants from cache");
 			fetchRestaurantsFromCache(location, maxResults);
@@ -78,11 +82,11 @@ public class MimiRestaurantService {
 		@Override
 	    protected List<Restaurant> doInBackground(Object... params) {
 			location = (Location)params[0];
-			int maxResults = (Integer)params[1];
+			int page = (Integer)params[1];
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
         	try {
-				return restaurantService.getApiRestaurantsAtLocation(latitude, longitude, maxDistance, maxResults);
+				return restaurantService.getApiRestaurantsAtLocation(latitude, longitude, page);
 			} catch (IOException e) {
 				//TODO handle error properly
 				throw new RuntimeException("Error downloading results from api", e);

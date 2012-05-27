@@ -11,6 +11,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -22,7 +24,7 @@ import android.widget.TextView;
  * Displays search results triggered by the search dialog and handles actions
  * from search suggestions.
  */
-public class RestaurantSearchResults extends Activity implements LocationChangeListener, RestaurantListener {
+public class RestaurantSearchResults extends Activity implements OnScrollListener, LocationChangeListener, RestaurantListener {
 
 	/** The number of restaurants to find before updating the display */
 	private static final int MIN_REFRESH_COUNT = 0;
@@ -34,15 +36,13 @@ public class RestaurantSearchResults extends Activity implements LocationChangeL
 	private MimiRestaurantService restaurantService;
 
 	//Number of results to limit the search to
-	private int numResults = 200;
+	private int numResults = 20;
+	private Location location;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-
-		mTextView = (TextView) findViewById(R.id.text);
-		mListView = (ListView) findViewById(R.id.list);
 		
 		locationService = new MimiLocationService(this, this);
 
@@ -52,6 +52,10 @@ public class RestaurantSearchResults extends Activity implements LocationChangeL
 			throw new RuntimeException("Could not instantiate restaurant service", e);
 		}
 
+		mTextView = (TextView) findViewById(R.id.text);
+		mListView = (ListView) findViewById(R.id.list);
+		mListView.setOnScrollListener(this);
+		
 		handleIntent(getIntent());
 	}
 
@@ -81,7 +85,14 @@ public class RestaurantSearchResults extends Activity implements LocationChangeL
 
 	@Override
 	public void onLocationChanged(Location location) {
-		restaurantService.loadRestaurantsForLocation(location, numResults);
+		this.location = location;
+		loadRestaurants();
+	}
+
+	private void loadRestaurants() {
+		if (restaurantService != null && location != null) {
+			restaurantService.loadRestaurantsForLocation(location, numResults);
+		}
 	}
 
 	@Override
@@ -138,5 +149,20 @@ public class RestaurantSearchResults extends Activity implements LocationChangeL
 		});
 
 		currentRestaurantsSet = new HashSet<Restaurant>(restaurants);
+	}
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		boolean loadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
+		if (loadMore) {
+			numResults = totalItemCount + 20;
+			Log.i(MimiLog.TAG, "Loading " + numResults + " items");
+			//TODO load a new set of restaurants to add to the list
+			loadRestaurants();
+		}
+	}
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
 	}
 }
