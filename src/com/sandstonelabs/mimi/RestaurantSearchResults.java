@@ -6,16 +6,17 @@ import java.util.List;
 import java.util.Set;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,6 +32,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 
 	private TextView mTextView;
 	private ListView mListView;
+	private RestaurantSearchArrayAdapter listAdapter;
 	private Set<Restaurant> currentRestaurantsSet;
 	private MimiLocationService locationService;
 	private MimiRestaurantService restaurantService;
@@ -38,6 +40,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	//Number of results to limit the search to
 	private int numResults = 20;
 	private Location location;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,8 +56,16 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		}
 
 		mTextView = (TextView) findViewById(R.id.text);
+		
+		listAdapter = new RestaurantSearchArrayAdapter(this);
 		mListView = (ListView) findViewById(R.id.list);
 		mListView.setOnScrollListener(this);
+		
+		LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View footerView = inflater.inflate(R.layout.listfooter, null);
+		Log.i(MimiLog.TAG, "Got footer view: " + footerView);
+		mListView.addFooterView(footerView);
+		mListView.setAdapter(listAdapter);
 		
 		handleIntent(getIntent());
 	}
@@ -122,13 +133,10 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 
 	private void displayResults(List<Restaurant> restaurants, Location location) {
 
-		// Display the number of results
-		mTextView.setText(restaurants.size() + " results for your location");
-
-		Log.i(MimiLog.TAG, "List has " + restaurants.size() + " elements");
-		final ArrayAdapter<Restaurant> adapter = new RestaurantSearchArrayAdapter(this, restaurants, location);
-
-		mListView.setAdapter(adapter);
+		addItemsToListAdapter(restaurants, location);
+		
+		Log.i(MimiLog.TAG, "List has " + listAdapter.getCount() + " elements");
+		mTextView.setText(listAdapter.getCount() + " results for your location");
 
 		// Define the on-click listener for the list items
 		mListView.setOnItemClickListener(new OnItemClickListener() {
@@ -140,7 +148,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 				// word Uri
 				Intent restaurantIntent = new Intent(getApplicationContext(), RestaurantDetailsActivity.class);
 
-				Restaurant restaurant = adapter.getItem(position);
+				Restaurant restaurant = listAdapter.getItem(position);
 
 				restaurantIntent.putExtra("restaurant", new RestaurantData(restaurant));
 
@@ -151,9 +159,17 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		currentRestaurantsSet = new HashSet<Restaurant>(restaurants);
 	}
 
+	private void addItemsToListAdapter(List<Restaurant> restaurants, Location location) {
+		for (Restaurant restaurant : restaurants) {
+			listAdapter.add(restaurant);
+		}
+		listAdapter.setLocation(location);
+	}
+
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		boolean loadMore = firstVisibleItem + visibleItemCount >= totalItemCount;
+		loadMore &= numResults <= totalItemCount;
 		if (loadMore) {
 			numResults = totalItemCount + 20;
 			Log.i(MimiLog.TAG, "Loading " + numResults + " items");
