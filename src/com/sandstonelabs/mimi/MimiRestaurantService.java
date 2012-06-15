@@ -35,11 +35,6 @@ public class MimiRestaurantService {
 
 		Log.i(MimiLog.TAG, "Using cache file: " + cacheFile.getCanonicalPath());
 		
-		// Load some static data and put it in the cache
-		StaticRestaurantLoader staticRestaurantLoader = new StaticRestaurantLoader(context, jsonParser);
-		List<String> restaurantJson = staticRestaurantLoader.loadRestaurantJson();
-		restaurantJsonCache.storeResultsInCache(restaurantJson);
-
 		// Return a new restaurant service using the new cache object
 		ApiRestaurantSearch restaurantApiSearch = new ApiRestaurantSearch();
 		return new RestaurantService(restaurantApiSearch, restaurantJsonCache);
@@ -48,31 +43,40 @@ public class MimiRestaurantService {
 	public void loadRestaurantsForLocation(Location location, int maxResults) {
 		Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
 
-		ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-		if (networkInfo != null && networkInfo.isConnected()) {
-			Log.i(MimiLog.TAG, "Getting restaurants from api");
+		try {
+			//First try to get the results from the cache
+			float latitude = (float) location.getLatitude();
+			float longitude = (float) location.getLongitude();
+			RestaurantResults restaurantResults = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, maxDistance, maxResults);
 			
-			//Calculate the page number based on the number of results
-			int page = (maxResults-1)/20+1;
-			
-			new FetchRestaurantsTask().execute(location, page);
-		} else {
-			Log.i(MimiLog.TAG, "Getting restaurants from cache");
-			fetchRestaurantsFromCache(location, maxResults);
+			Log.i(MimiLog.TAG, "Got " + restaurantResults.restaurants.size() + " results from cache. Full results: " + restaurantResults.fullResults);
+			//If we did not get the full results for this location,
+			//lookup the remaining results from the API
+			if (!restaurantResults.fullResults && isNetworkAvailable()) {
+				//We haven't got all the possible results from the cache
+				//call the remote api if it is available
+				fetchRestaurantsFromApi(location, maxResults);
+			}else{
+				//Display the restaurants loaded from the cache (whether they are full or not)
+				restaurantListener.onRestaurantsLoaded(restaurantResults.restaurants, location);
+			}
+		}catch(IOException e) {
+			//TODO handle error properly
+			throw new RuntimeException("Error getting results from cache", e);
 		}
 	}
 	
-	private void fetchRestaurantsFromCache(Location location, int maxResults) {
-		float latitude = (float) location.getLatitude();
-		float longitude = (float) location.getLongitude();
-		try {
-			List<Restaurant> cachedRestaurants = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, maxDistance, maxResults);
-			restaurantListener.onRestaurantsLoaded(cachedRestaurants, location);
-		}catch (IOException e) {
-			//TODO handle error properly
-			throw new RuntimeException("Error downloading results from cache", e);
-		}
+	private boolean isNetworkAvailable() {
+		ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		return networkInfo != null && networkInfo.isConnected();
+	}
+	
+	private void fetchRestaurantsFromApi(Location location, int maxResults) {
+		Log.i(MimiLog.TAG, "Getting restaurants from api");
+		//Calculate the page number based on the number of results
+		int page = (maxResults-1)/20+1;
+		new FetchRestaurantsTask().execute(location, page);
 	}
 
 	private class FetchRestaurantsTask extends AsyncTask<Object, Void, List<Restaurant>> {
