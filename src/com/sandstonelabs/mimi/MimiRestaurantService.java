@@ -10,18 +10,22 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.TextView;
 
 public class MimiRestaurantService {
 
     private static final int maxDistance = 10000; //10km
     
-	private Context context;
+	private final Context context;
+	private final TextView statusTextView;
 	private final RestaurantListener restaurantListener;
 	
 	private RestaurantService restaurantService;
 
-	public MimiRestaurantService(Context context, RestaurantListener restaurantListener) throws IOException {
+
+	public MimiRestaurantService(Context context, TextView statusTextView, RestaurantListener restaurantListener) throws IOException {
 		this.context = context;
+		this.statusTextView = statusTextView;
 		this.restaurantListener = restaurantListener;
 		restaurantService = setupRestaurantService(context);
 	}
@@ -30,10 +34,10 @@ public class MimiRestaurantService {
 		RestaurantJsonParser jsonParser = new RestaurantJsonParser();
 
 		// Create the cache
-		File cacheFile = new File(context.getCacheDir(), "mimi-cache.txt");
-		RestaurantJsonCache restaurantJsonCache = new RestaurantJsonCache(cacheFile, jsonParser);
+		File cacheDir = context.getCacheDir();
+		RestaurantJsonCache restaurantJsonCache = new RestaurantJsonCache(cacheDir, jsonParser);
 
-		Log.i(MimiLog.TAG, "Using cache file: " + cacheFile.getCanonicalPath());
+		Log.i(MimiLog.TAG, "Using cache directory: " + cacheDir.getCanonicalPath());
 		
 		// Return a new restaurant service using the new cache object
 		ApiRestaurantSearch restaurantApiSearch = new ApiRestaurantSearch();
@@ -44,17 +48,27 @@ public class MimiRestaurantService {
 		Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
 
 		try {
+			statusTextView.setText("Getting restaurants from cache");
+			
 			//First try to get the results from the cache
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
 			RestaurantResults restaurantResults = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, maxDistance, maxResults);
 			
 			Log.i(MimiLog.TAG, "Got " + restaurantResults.restaurants.size() + " results from cache. Full results: " + restaurantResults.fullResults);
+
+			for (Restaurant restaurant : restaurantResults.restaurants) {
+				Log.i(MimiLog.TAG, "Got restaurant " + restaurant.name);
+			}
+			
+			
+			statusTextView.setText("Loaded " + restaurantResults.restaurants.size() + " restaurants from cache");
 			//If we did not get the full results for this location,
 			//lookup the remaining results from the API
 			if (!restaurantResults.fullResults && isNetworkAvailable()) {
 				//We haven't got all the possible results from the cache
 				//call the remote api if it is available
+				statusTextView.setText("Loading restaurants from website");
 				fetchRestaurantsFromApi(location, maxResults);
 			}else{
 				//Display the restaurants loaded from the cache (whether they are full or not)
@@ -98,7 +112,8 @@ public class MimiRestaurantService {
 	    }
 
 	    @Override
-	    protected void onPostExecute(List<Restaurant> restaurants) {  
+	    protected void onPostExecute(List<Restaurant> restaurants) {
+			statusTextView.setText("Loaded " + restaurants.size() + " restaurants from website");
 	    	restaurantListener.onRestaurantsLoaded(restaurants, location);
 	    }
 	    

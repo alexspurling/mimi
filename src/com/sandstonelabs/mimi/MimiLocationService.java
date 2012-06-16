@@ -94,11 +94,14 @@ public class MimiLocationService {
 		float minLatitude = 51.546f;
 		float maxLongitude = -0.08f;
 		
-		float randomLatitude = (float) (Math.random() * (maxLatitude - minLatitude) + minLatitude);
-		float randomLongitude = (float) (Math.random() * (maxLongitude - minLongitude) + minLongitude);
+		float latitude = (float) (Math.random() * (maxLatitude - minLatitude) + minLatitude);
+		float longitude = (float) (Math.random() * (maxLongitude - minLongitude) + minLongitude);
 		
-		fakeLocation.setLatitude(randomLatitude);
-		fakeLocation.setLongitude(randomLongitude);
+		latitude = 51.49292f;
+		longitude = -0.16699f;
+		
+		fakeLocation.setLatitude(latitude);
+		fakeLocation.setLongitude(longitude);
 		
 		Log.i(MimiLog.TAG, "Generated random location: " + fakeLocation);
 		
