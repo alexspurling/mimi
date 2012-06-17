@@ -87,9 +87,10 @@ public class MimiRestaurantService {
 	}
 	
 	private void fetchRestaurantsFromApi(Location location, int maxResults) {
-		Log.i(MimiLog.TAG, "Getting restaurants from api");
 		//Calculate the page number based on the number of results
 		int page = (maxResults-1)/20+1;
+		
+		Log.i(MimiLog.TAG, "Getting restaurants from api at page " + page);
 		new FetchRestaurantsTask().execute(location, page);
 	}
 
