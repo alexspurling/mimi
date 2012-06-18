@@ -101,6 +101,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		if (restaurantService != null && location != null) {
 			//Check mutex to avoid loading restaurants more than once
 			if (loadingResults.compareAndSet(false, true)) {
+				Log.i(MimiLog.TAG, "About to load up to " + numResultsToLoad + " results");
 				restaurantService.loadRestaurantsForLocation(location, numResultsToLoad);
 			}
 		}
@@ -108,8 +109,9 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 
 	@Override
 	public void onRestaurantsLoaded(List<Restaurant> restaurants, Location location) {
-		numResultsLoaded = restaurants.size();
+		numResultsLoaded += restaurants.size();
 		displayResults(restaurants, location);
+		Log.i(MimiLog.TAG, "Loaded " + numResultsLoaded + " results");
 		loadingResults.set(false); //Unset mutex
 	}
 

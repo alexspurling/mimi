@@ -14,8 +14,6 @@ import android.widget.TextView;
 
 public class MimiRestaurantService {
 
-    private static final int maxDistance = 10000; //10km
-    
 	private final Context context;
 	private final TextView statusTextView;
 	private final RestaurantListener restaurantListener;
@@ -48,14 +46,16 @@ public class MimiRestaurantService {
 		Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
 
 		try {
-			statusTextView.setText("Getting restaurants from cache");
-			
-			//First try to get the results from the cache
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
-			RestaurantResults restaurantResults = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, maxDistance, maxResults);
+			//Calculate the page number based on the number of results
+			int page = (maxResults-1)/20+1;
 			
-			Log.i(MimiLog.TAG, "Got " + restaurantResults.restaurants.size() + " results from cache. Full results: " + restaurantResults.fullResults);
+			//First try to get the results from the cache
+			statusTextView.setText("Getting restaurants from cache");
+			RestaurantResults restaurantResults = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, page);
+			
+			Log.i(MimiLog.TAG, "Got " + restaurantResults.restaurants.size() + " results from cache for page " + page + ". Full results: " + restaurantResults.fullResults);
 
 			for (Restaurant restaurant : restaurantResults.restaurants) {
 				Log.i(MimiLog.TAG, "Got restaurant " + restaurant.name);
@@ -69,7 +69,7 @@ public class MimiRestaurantService {
 				//We haven't got all the possible results from the cache
 				//call the remote api if it is available
 				statusTextView.setText("Loading restaurants from website");
-				fetchRestaurantsFromApi(location, maxResults);
+				fetchRestaurantsFromApi(location, page);
 			}else{
 				//Display the restaurants loaded from the cache (whether they are full or not)
 				restaurantListener.onRestaurantsLoaded(restaurantResults.restaurants, location);
@@ -86,10 +86,7 @@ public class MimiRestaurantService {
 		return networkInfo != null && networkInfo.isConnected();
 	}
 	
-	private void fetchRestaurantsFromApi(Location location, int maxResults) {
-		//Calculate the page number based on the number of results
-		int page = (maxResults-1)/20+1;
-		
+	private void fetchRestaurantsFromApi(Location location, int page) {
 		Log.i(MimiLog.TAG, "Getting restaurants from api at page " + page);
 		new FetchRestaurantsTask().execute(location, page);
 	}
