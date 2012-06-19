@@ -89,16 +89,16 @@ public class MimiLocationService {
 	
 	public Location getRandomLocation() {
 		Location fakeLocation = new Location("RandomLocation");
-		float maxLatitude = 51.484f;
-		float minLongitude = -0.189f;
-		float minLatitude = 51.546f;
-		float maxLongitude = -0.08f;
+		float maxLatitude = 51.57405f;
+		float minLongitude = -0.10752f;
+		float minLatitude = 51.57346f;
+		float maxLongitude = -0.10655f;
 		
 		float latitude = (float) (Math.random() * (maxLatitude - minLatitude) + minLatitude);
 		float longitude = (float) (Math.random() * (maxLongitude - minLongitude) + minLongitude);
 		
-		latitude = 51.49292f;
-		longitude = -0.16699f;
+//		latitude = 51.49292f;
+//		longitude = -0.16699f;
 		
 		fakeLocation.setLatitude(latitude);
 		fakeLocation.setLongitude(longitude);

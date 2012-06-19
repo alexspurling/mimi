@@ -42,14 +42,14 @@ public class MimiRestaurantService {
 		return new RestaurantService(restaurantApiSearch, restaurantJsonCache);
 	}
 
-	public void loadRestaurantsForLocation(Location location, int maxResults) {
+	public void loadRestaurantsForLocation(Location location, int startIndex, int numResults) {
 		Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
 
 		try {
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
 			//Calculate the page number based on the number of results
-			int page = (maxResults-1)/20+1;
+			int page = (startIndex)/20+1; //TODO don't calculate the page number here - pass the index directly to the library
 			
 			//First try to get the results from the cache
 			statusTextView.setText("Getting restaurants from cache");
@@ -69,10 +69,10 @@ public class MimiRestaurantService {
 				//We haven't got all the possible results from the cache
 				//call the remote api if it is available
 				statusTextView.setText("Loading restaurants from website");
-				fetchRestaurantsFromApi(location, page);
+				fetchRestaurantsFromApi(location, startIndex, page);
 			}else{
 				//Display the restaurants loaded from the cache (whether they are full or not)
-				restaurantListener.onRestaurantsLoaded(restaurantResults.restaurants, location);
+				restaurantListener.onRestaurantsLoaded(restaurantResults.restaurants, location, startIndex);
 			}
 		}catch(IOException e) {
 			//TODO handle error properly
@@ -86,19 +86,21 @@ public class MimiRestaurantService {
 		return networkInfo != null && networkInfo.isConnected();
 	}
 	
-	private void fetchRestaurantsFromApi(Location location, int page) {
+	private void fetchRestaurantsFromApi(Location location, int startIndex, int page) {
 		Log.i(MimiLog.TAG, "Getting restaurants from api at page " + page);
-		new FetchRestaurantsTask().execute(location, page);
+		new FetchRestaurantsTask().execute(location, startIndex, page);
 	}
 
 	private class FetchRestaurantsTask extends AsyncTask<Object, Void, List<Restaurant>> {
 
 		private Location location;
+		private int startIndex;
 		
 		@Override
 	    protected List<Restaurant> doInBackground(Object... params) {
 			location = (Location)params[0];
-			int page = (Integer)params[1];
+			startIndex = (Integer)params[1];
+			int page = (Integer)params[2];
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
         	try {
@@ -112,7 +114,7 @@ public class MimiRestaurantService {
 	    @Override
 	    protected void onPostExecute(List<Restaurant> restaurants) {
 			statusTextView.setText("Loaded " + restaurants.size() + " restaurants from website");
-	    	restaurantListener.onRestaurantsLoaded(restaurants, location);
+	    	restaurantListener.onRestaurantsLoaded(restaurants, location, startIndex);
 	    }
 	    
 	}

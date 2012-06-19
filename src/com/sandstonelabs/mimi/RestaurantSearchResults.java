@@ -1,7 +1,9 @@
 package com.sandstonelabs.mimi;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Activity;
@@ -26,15 +28,16 @@ import android.widget.TextView;
  */
 public class RestaurantSearchResults extends Activity implements OnScrollListener, LocationChangeListener, RestaurantListener {
 
+	private List<Restaurant> restaurantList = new ArrayList<Restaurant>();
+	
 	private TextView mTextView;
 	private ListView mListView;
 	private RestaurantSearchArrayAdapter listAdapter;
 	private MimiLocationService locationService;
 	private MimiRestaurantService restaurantService;
 
-	//Number of results to limit the search to
-	private int numResultsLoaded = 0;
-	private int numResultsToLoad = 20;
+	private static final int NUM_RESULTS_PER_PAGE = 20;
+	
 	private AtomicBoolean loadingResults = new AtomicBoolean(false);
 
 	private Location location;
@@ -54,7 +57,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 			throw new RuntimeException("Could not instantiate restaurant service", e);
 		}
 		
-		listAdapter = new RestaurantSearchArrayAdapter(this);
+		listAdapter = new RestaurantSearchArrayAdapter(this, restaurantList);
 		mListView = (ListView) findViewById(R.id.list);
 		mListView.setOnScrollListener(this);
 		
@@ -94,30 +97,30 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	@Override
 	public void onLocationChanged(Location location) {
 		this.location = location;
-		loadRestaurants();
+		//If we have a new location then refresh any results that are already loaded
+		loadRestaurants(0, NUM_RESULTS_PER_PAGE);
 	}
 
-	private void loadRestaurants() {
+	private void loadRestaurants(int startIndex, int numResults) {
 		if (restaurantService != null && location != null) {
 			//Check mutex to avoid loading restaurants more than once
 			if (loadingResults.compareAndSet(false, true)) {
-				Log.i(MimiLog.TAG, "About to load up to " + numResultsToLoad + " results");
-				restaurantService.loadRestaurantsForLocation(location, numResultsToLoad);
+				Log.i(MimiLog.TAG, "About to load " + numResults + " results from index " + startIndex);
+				restaurantService.loadRestaurantsForLocation(location, startIndex, numResults);
 			}
 		}
 	}
 
 	@Override
-	public void onRestaurantsLoaded(List<Restaurant> restaurants, Location location) {
-		numResultsLoaded += restaurants.size();
-		displayResults(restaurants, location);
-		Log.i(MimiLog.TAG, "Loaded " + numResultsLoaded + " results");
+	public void onRestaurantsLoaded(List<Restaurant> restaurants, Location location, int startIndex) {
+		displayResults(restaurants, location, startIndex);
+		Log.i(MimiLog.TAG, "Loaded " + restaurantList.size() + " results");
 		loadingResults.set(false); //Unset mutex
 	}
 
-	private void displayResults(List<Restaurant> restaurants, Location location) {
+	private void displayResults(List<Restaurant> restaurants, Location location, int startIndex) {
 
-		addItemsToListAdapter(restaurants, location);
+		updateItemsInListAdapter(restaurants, location, startIndex);
 		
 		Log.i(MimiLog.TAG, "List has " + listAdapter.getCount() + " elements");
 
@@ -139,18 +142,32 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		});
 	}
 
-	private void addItemsToListAdapter(List<Restaurant> restaurants, Location location) {
-		for (Restaurant restaurant : restaurants) {
-			listAdapter.add(restaurant);
+	private void updateItemsInListAdapter(List<Restaurant> restaurants, Location location, int startIndex) {
+		//Remove any existing items in the list from the insert index onwards
+		
+		Log.i(MimiLog.TAG, "Updating list with " + restaurants.size() + " restaurants starting at index " + startIndex);
+		
+		if (restaurantList.size() > startIndex) {
+			ListIterator<Restaurant> iter = restaurantList.listIterator(restaurantList.size());
+			while(restaurantList.size() > startIndex && iter.hasPrevious()) {
+				Restaurant restaurant = iter.previous();
+				Log.i(MimiLog.TAG, "Removing restaurant: " + restaurant);
+				iter.remove();
+			}
 		}
+		
+		restaurantList.addAll(restaurants);
+		//Set the location so the distance to each restaurant can be calculated
 		listAdapter.setLocation(location);
+		listAdapter.notifyDataSetChanged();
 	}
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		if (firstVisibleItem + visibleItemCount >= totalItemCount) {
-			numResultsToLoad = numResultsLoaded + 20;
-			loadRestaurants();
+			//Load a page of new results onto the end of the existing list
+			int startIndex = restaurantList.size();
+			loadRestaurants(startIndex, NUM_RESULTS_PER_PAGE);
 		}
 	}
 

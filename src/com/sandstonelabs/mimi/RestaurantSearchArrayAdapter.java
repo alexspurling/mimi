@@ -1,5 +1,7 @@
 package com.sandstonelabs.mimi;
 
+import java.util.List;
+
 import android.content.Context;
 import android.location.Location;
 import android.view.LayoutInflater;
@@ -13,8 +15,8 @@ public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 
 	private Location location;
 
-	public RestaurantSearchArrayAdapter(Context context) {
-		super(context, R.layout.results);
+	public RestaurantSearchArrayAdapter(Context context, List<Restaurant> restaurantList) {
+		super(context, R.layout.results, restaurantList);
 	}
 	
 	public void setLocation(Location location) {
