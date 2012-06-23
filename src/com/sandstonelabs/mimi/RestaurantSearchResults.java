@@ -32,11 +32,13 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	
 	private TextView mTextView;
 	private ListView mListView;
+	private View footerView;
 	private RestaurantSearchArrayAdapter listAdapter;
 	private MimiLocationService locationService;
 	private MimiRestaurantService restaurantService;
 
 	private static final int NUM_RESULTS_PER_PAGE = 20;
+	private static final int MAX_RESULTS = 100;
 	
 	private AtomicBoolean loadingResults = new AtomicBoolean(false);
 
@@ -62,9 +64,8 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		mListView.setOnScrollListener(this);
 		
 		LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View footerView = inflater.inflate(R.layout.listfooter, null);
-		Log.i(MimiLog.TAG, "Got footer view: " + footerView);
-		mListView.addFooterView(footerView);
+		footerView = inflater.inflate(R.layout.listfooter, null);
+		addLoadingFooter();
 		mListView.setAdapter(listAdapter);
 		
 		handleIntent(getIntent());
@@ -140,6 +141,24 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 				startActivity(restaurantIntent);
 			}
 		});
+		
+		if (listAdapter.getCount() >= MAX_RESULTS) {
+			removeLoadingFooter();
+		}else{
+			addLoadingFooter();
+		}
+	}
+
+	private void addLoadingFooter() {
+		if (mListView.getFooterViewsCount() == 0) {
+			mListView.addFooterView(footerView);
+			mListView.setOnScrollListener(this);
+		}
+	}
+
+	private void removeLoadingFooter() {
+		mListView.removeFooterView(footerView);
+		mListView.setOnScrollListener(null);
 	}
 
 	private void updateItemsInListAdapter(List<Restaurant> restaurants, Location location, int startIndex) {
