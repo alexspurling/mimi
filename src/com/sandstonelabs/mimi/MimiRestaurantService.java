@@ -48,14 +48,12 @@ public class MimiRestaurantService {
 		try {
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
-			//Calculate the page number based on the number of results
-			int page = (startIndex)/20+1; //TODO don't calculate the page number here - pass the index directly to the library
 			
 			//First try to get the results from the cache
 			statusTextView.setText("Getting restaurants from cache");
-			RestaurantResults restaurantResults = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, page);
+			RestaurantResults restaurantResults = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, startIndex, numResults);
 			
-			Log.i(MimiLog.TAG, "Got " + restaurantResults.restaurants.size() + " results from cache for page " + page + ". Full results: " + restaurantResults.fullResults);
+			Log.i(MimiLog.TAG, "Got " + restaurantResults.restaurants.size() + " results from cache from index " + startIndex + ". Full results: " + restaurantResults.fullResults);
 
 			for (Restaurant restaurant : restaurantResults.restaurants) {
 				Log.i(MimiLog.TAG, "Got restaurant " + restaurant.name);
@@ -69,7 +67,7 @@ public class MimiRestaurantService {
 				//We haven't got all the possible results from the cache
 				//call the remote api if it is available
 				statusTextView.setText("Loading restaurants from website");
-				fetchRestaurantsFromApi(location, startIndex, page);
+				fetchRestaurantsFromApi(location, startIndex);
 			}else{
 				//Display the restaurants loaded from the cache (whether they are full or not)
 				restaurantListener.onRestaurantsLoaded(restaurantResults.restaurants, location, startIndex);
@@ -86,9 +84,9 @@ public class MimiRestaurantService {
 		return networkInfo != null && networkInfo.isConnected();
 	}
 	
-	private void fetchRestaurantsFromApi(Location location, int startIndex, int page) {
-		Log.i(MimiLog.TAG, "Getting restaurants from api at page " + page);
-		new FetchRestaurantsTask().execute(location, startIndex, page);
+	private void fetchRestaurantsFromApi(Location location, int startIndex) {
+		Log.i(MimiLog.TAG, "Getting restaurants from api from index " + startIndex);
+		new FetchRestaurantsTask().execute(location, startIndex);
 	}
 
 	private class FetchRestaurantsTask extends AsyncTask<Object, Void, List<Restaurant>> {
@@ -100,11 +98,10 @@ public class MimiRestaurantService {
 	    protected List<Restaurant> doInBackground(Object... params) {
 			location = (Location)params[0];
 			startIndex = (Integer)params[1];
-			int page = (Integer)params[2];
 			float latitude = (float) location.getLatitude();
 			float longitude = (float) location.getLongitude();
         	try {
-				return restaurantService.getApiRestaurantsAtLocation(latitude, longitude, page);
+				return restaurantService.getApiRestaurantsAtLocation(latitude, longitude, startIndex);
 			} catch (IOException e) {
 				//TODO handle error properly
 				throw new RuntimeException("Error downloading results from api", e);
