@@ -15,15 +15,13 @@ import android.widget.TextView;
 public class MimiRestaurantService {
 
 	private final Context context;
-	private final TextView statusTextView;
 	private final RestaurantListener restaurantListener;
 	
 	private RestaurantService restaurantService;
 
 
-	public MimiRestaurantService(Context context, TextView statusTextView, RestaurantListener restaurantListener) throws IOException {
+	public MimiRestaurantService(Context context, RestaurantListener restaurantListener) throws IOException {
 		this.context = context;
-		this.statusTextView = statusTextView;
 		this.restaurantListener = restaurantListener;
 		restaurantService = setupRestaurantService(context);
 	}
@@ -50,7 +48,6 @@ public class MimiRestaurantService {
 			float longitude = (float) location.getLongitude();
 			
 			//First try to get the results from the cache
-			statusTextView.setText("Getting restaurants from cache");
 			RestaurantResults restaurantResults = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, startIndex, numResults);
 			
 			Log.i(MimiLog.TAG, "Got " + restaurantResults.restaurants.size() + " results from cache from index " + startIndex + ". Full results: " + restaurantResults.fullResults);
@@ -59,14 +56,11 @@ public class MimiRestaurantService {
 				Log.i(MimiLog.TAG, "Got restaurant " + restaurant.name);
 			}
 			
-			
-			statusTextView.setText("Loaded " + restaurantResults.restaurants.size() + " restaurants from cache");
 			//If we did not get the full results for this location,
 			//lookup the remaining results from the API
 			if (!restaurantResults.fullResults && isNetworkAvailable()) {
 				//We haven't got all the possible results from the cache
 				//call the remote api if it is available
-				statusTextView.setText("Loading restaurants from website");
 				fetchRestaurantsFromApi(location, startIndex);
 			}else{
 				//Display the restaurants loaded from the cache (whether they are full or not)
@@ -110,7 +104,6 @@ public class MimiRestaurantService {
 
 	    @Override
 	    protected void onPostExecute(List<Restaurant> restaurants) {
-			statusTextView.setText("Loaded " + restaurants.size() + " restaurants from website");
 	    	restaurantListener.onRestaurantsLoaded(restaurants, location, startIndex);
 	    }
 	    

@@ -54,7 +54,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		locationService = new MimiLocationService(this, this);
 
 		try {
-			restaurantService = new MimiRestaurantService(this, mTextView, this);
+			restaurantService = new MimiRestaurantService(this, this);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not instantiate restaurant service", e);
 		}
@@ -82,17 +82,13 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 
 	private void handleIntent(Intent intent) {
 		Log.i(MimiLog.TAG, "Doing something with intent: " + intent);
-		showLoadingScreen();
+		mTextView.setText("Loading your current location...");
 
 		// Get the last available location to display results
 		Location location = locationService.getLastKnownLocation();
 		if (location != null) {
 			onLocationChanged(location);
 		}
-	}
-
-	private void showLoadingScreen() {
-		mTextView.setText("Loading your current location...");
 	}
 
 	@Override
@@ -107,6 +103,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 			//Check mutex to avoid loading restaurants more than once
 			if (loadingResults.compareAndSet(false, true)) {
 				Log.i(MimiLog.TAG, "About to load " + numResults + " results from index " + startIndex);
+				mTextView.setText("Loading results ...");
 				restaurantService.loadRestaurantsForLocation(location, startIndex, numResults);
 			}
 		}
@@ -116,6 +113,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	public void onRestaurantsLoaded(List<Restaurant> restaurants, Location location, int startIndex) {
 		displayResults(restaurants, location, startIndex);
 		Log.i(MimiLog.TAG, "Loaded " + restaurantList.size() + " results");
+		mTextView.setText("Loaded " + restaurantList.size() + " results");
 		loadingResults.set(false); //Unset mutex
 	}
 
