@@ -194,7 +194,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 			ListIterator<Restaurant> iter = restaurantList.listIterator(restaurantList.size());
 			while(restaurantList.size() > startIndex && iter.hasPrevious()) {
 				Restaurant restaurant = iter.previous();
-				Log.i(MimiLog.TAG, "Removing restaurant: " + restaurant);
+				Log.i(MimiLog.TAG, "Removing restaurant: " + restaurant.name);
 				iter.remove();
 			}
 		}
