@@ -22,4 +22,7 @@
     <string name="sample_location">Show on map</string>
     <string name="sample_email">theadmiralcodrington@theadmiralcodrington.co.uk</string>
     <string name="sample_phone_number">(020) 75810005</string>
+    
+    <string name="refresh">Refresh</string>
+    <string name="about">About</string>
 </resources>

@@ -9,16 +9,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 /**
@@ -44,14 +51,14 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 
 	private Location location;
 
+	private PopupWindow aboutPopup;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
 		mTextView = (TextView) findViewById(R.id.text);
-		
-		locationService = new MimiLocationService(this, this);
 
 		try {
 			restaurantService = new MimiRestaurantService(this, this);
@@ -68,7 +75,28 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		addLoadingFooter();
 		mListView.setAdapter(listAdapter);
 		
-		handleIntent(getIntent());
+		setupAboutPopup(inflater);
+
+		locationService = new MimiLocationService(this, this);
+		
+		initialiseResults();
+	}
+
+	private void setupAboutPopup(LayoutInflater inflater) {
+		this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		Display display = getWindowManager().getDefaultDisplay();
+		int popupWidth = display.getWidth() - 40;
+		int popupHeight = 400;
+		aboutPopup = new PopupWindow(inflater.inflate(R.layout.about, null, false), popupWidth, popupHeight, true);
+		aboutPopup.setBackgroundDrawable(new BitmapDrawable());
+		aboutPopup.setOutsideTouchable(true);
+//		Button okButton = aboutPopup.
+//		okButton.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View view) {
+//				aboutPopup.dismiss();
+//			}
+//		});
 	}
 
 	@Override
@@ -77,13 +105,11 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		// to deliver the intent if this activity is currently the foreground activity when
 		// invoked again (when the user executes a search from this activity, we don't create
 		// a new instance of this activity, so the system delivers the search intent here)
-		handleIntent(intent);
+		initialiseResults();
 	}
 
-	private void handleIntent(Intent intent) {
-		Log.i(MimiLog.TAG, "Doing something with intent: " + intent);
+	private void initialiseResults() {
 		mTextView.setText("Loading your current location...");
-
 		// Get the last available location to display results
 		Location location = locationService.getLastKnownLocation();
 		if (location != null) {
@@ -190,5 +216,45 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
+	}
+
+	@Override
+	public void onLocationUnavailable() {
+		Log.i(MimiLog.TAG, "Location unavailable");
+		mTextView.setText("Current location unavailable");
+		removeLoadingFooter();
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	private void showAbout() {
+		aboutPopup.showAtLocation(this.findViewById(R.id.main_layout), Gravity.CENTER, 0, 0); 
+	}
+
+	private void refresh() {
+		locationService.refreshLocationManager(this);
+		listAdapter.clear();
+		listAdapter.notifyDataSetChanged();
+		initialiseResults();
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	        case R.id.menu_refresh:
+	            refresh();
+	            return true;
+	        case R.id.menu_about:
+	            showAbout();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
 	}
 }

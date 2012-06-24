@@ -10,11 +10,13 @@ import android.util.Log;
 
 public class MimiLocationService {
 
+	private static final long LOCATION_AVAILABLE_CHECK_TIME = 60000; // In ms
 	private static final long MIN_LOCATION_REFRESH_TIME = 60000; // In ms
 	private static final float MIN_LOCATION_REFRESH_DISTANCE = 100; // In m
 	
 	private LocationChangeListener locationChangeListener;
 	private LocationManager locationManager;
+	private LocationListener locationListener;
 	private String provider;
 	
 	//For testing only
@@ -23,15 +25,13 @@ public class MimiLocationService {
 	public MimiLocationService(Context context, LocationChangeListener locationChangeListener) {
 		this.locationChangeListener = locationChangeListener;
 		setUpLocationManager(context);
-		//Should only be used for testing purposes - otherwise rely on the LocationManager refresh behaviour
-		//setUpRegularLocationRefresh();
 	}
 
 	private void setUpLocationManager(Context context) {
 		locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
 		// Define a listener that responds to location updates
-		LocationListener locationListener = new LocationListener() {
+		locationListener = new LocationListener() {
 			@Override
 			public void onLocationChanged(Location location) {
 				locationChangeListener.onLocationChanged(location);
@@ -52,15 +52,16 @@ public class MimiLocationService {
 
 		Log.i(MimiLog.TAG, "All location providers: " + locationManager.getAllProviders());
 
-		if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER)) {
+		if (locationManager.getAllProviders().contains(LocationManager.NETWORK_PROVIDER) && 
+			locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 			provider = LocationManager.NETWORK_PROVIDER;
 			Log.i(MimiLog.TAG, "Requesting location updates from provider " + provider);
-			
 			// Register the listener with the LocationManager to receive location updates
 			locationManager.requestLocationUpdates(provider, MIN_LOCATION_REFRESH_TIME, MIN_LOCATION_REFRESH_DISTANCE, locationListener);
+			setTimeLimitForLocation();
 		}else{
-			//TODO Handle no network location provider
-			//
+			Log.i(MimiLog.TAG, "Network provider is currently unavailable");
+			locationChangeListener.onLocationUnavailable();
 		}
 	}
 
@@ -72,18 +73,25 @@ public class MimiLocationService {
 			return getRandomLocation();
 		}
 	}
-
-	private void setUpRegularLocationRefresh() {
-		handler = new Handler();
-		handler.post(new LocationUpdater());
+	
+	public void refreshLocationManager(Context context) {
+		setUpLocationManager(context);
 	}
 
-	private class LocationUpdater implements Runnable {
+	private void setTimeLimitForLocation() {
+		handler = new Handler();
+		//Check if a location has been found after 60s. If not, location manager.
+		handler.postDelayed(new LocationAvailabilityCheck(), LOCATION_AVAILABLE_CHECK_TIME);
+	}
+
+	private class LocationAvailabilityCheck implements Runnable {
 		@Override
 		public void run() {
-			Location location = getRandomLocation();
-			locationChangeListener.onLocationChanged(location);
-			handler.postDelayed(new LocationUpdater(), MIN_LOCATION_REFRESH_TIME);
+			Location location = getLastKnownLocation();
+			if (location == null) {
+				locationManager.removeUpdates(locationListener);
+				locationChangeListener.onLocationUnavailable();
+			}
 		}
 	}
 	
