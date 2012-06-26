@@ -7,6 +7,7 @@ import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
@@ -233,7 +234,12 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	}
 
 	private void showAbout() {
-		aboutPopup.showAtLocation(this.findViewById(R.id.main_layout), Gravity.CENTER, 0, 0); 
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setTitle("Mimi Restaurant Search")
+			.setMessage("Happy birthday, Mum! May Mimi guide you always to good food and happy times.")
+			.setIcon(R.drawable.ic_launcher)
+			.setNeutralButton("OK", null)
+			.show();
 	}
 
 	private void refresh() {
