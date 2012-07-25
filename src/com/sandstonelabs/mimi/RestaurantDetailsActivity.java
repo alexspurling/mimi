@@ -28,6 +28,7 @@ public class RestaurantDetailsActivity extends Activity {
 		TextView descriptionText = (TextView) findViewById(R.id.details_description);
 		TextView cuisineText = (TextView) findViewById(R.id.details_cuisine);
 		TextView foodPriceText = (TextView) findViewById(R.id.details_food_price);
+		TextView addressText = (TextView) findViewById(R.id.details_address);
 		Button locationButton = (Button) findViewById(R.id.details_location);
 		Button emailButton = (Button) findViewById(R.id.details_email);
 		Button callPhoneButton = (Button) findViewById(R.id.details_call);
@@ -45,8 +46,10 @@ public class RestaurantDetailsActivity extends Activity {
 		descriptionText.setText(restaurant.description);
 		cuisineText.setText(restaurant.cuisine);
 		foodPriceText.setText(restaurant.foodPrice);
-		emailButton.setText(getLengthRestrictedString(restaurant.email, 27));
-		callPhoneButton.setText(restaurant.phoneNumber);
+		addressText.setText(restaurant.oneLineAddress);
+		
+		setEmail(emailButton, restaurant);
+		setPhone(callPhoneButton, restaurant);
 		
 		locationButton.setOnClickListener(new View.OnClickListener() {
 
@@ -87,8 +90,22 @@ public class RestaurantDetailsActivity extends Activity {
 
 	}
 
+	private void setEmail(Button emailButton, Restaurant restaurant) {
+		if (restaurant.email != null && restaurant.email.length() > 0) {
+			emailButton.setText(getLengthRestrictedString(restaurant.email, 27));
+			emailButton.setEnabled(true);
+		}
+	}
+
+	private void setPhone(Button callPhoneButton, Restaurant restaurant) {
+		if (restaurant.phoneNumber != null && restaurant.phoneNumber.length() > 0) {
+			callPhoneButton.setText(restaurant.phoneNumber);
+			callPhoneButton.setEnabled(true);
+		}
+	}
+
 	private String getLengthRestrictedString(String string, int maxLength) {
-		if (string.length() > maxLength) {
+		if (string != null && string.length() > maxLength) {
 			return string.substring(0, maxLength-3) + "...";
 		}
 		return string;

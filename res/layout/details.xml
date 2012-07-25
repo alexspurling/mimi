@@ -180,7 +180,8 @@
 	        android:paddingBottom="6dp"
 	        android:paddingRight="15dp"
 	        android:paddingLeft="5dp"
-	        android:text="@string/sample_email" />
+	        android:text="@string/sample_email"
+	        android:enabled="false" />
 	    
 	    <Button
 	        android:id="@+id/details_call"
@@ -191,7 +192,8 @@
 	        android:paddingBottom="6dp"
 	        android:paddingRight="15dp"
 	        android:paddingLeft="5dp"
-	        android:text="@string/sample_phone_number" />
+	        android:text="@string/sample_phone_number"
+	        android:enabled="false" />
 	
 	</LinearLayout>
 </ScrollView>
