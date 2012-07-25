@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.sandstonelabs.mimi.RestaurantRating.RatingType;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -15,7 +17,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -66,6 +67,18 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		} catch (IOException e) {
 			throw new RuntimeException("Could not instantiate restaurant service", e);
 		}
+		
+		//Add test data
+		RestaurantRating qualityRating = new RestaurantRating(5, RatingType.COMFORTABLE, "Some description of the rating");
+		float latitude = 0;
+		float longitude = 0;
+		Restaurant restaurant = new Restaurant.RestaurantBuilder()
+			.name("Some long restaurant name")
+			.qualityRating(qualityRating)
+			.latitude(latitude)
+			.longitude(longitude)
+			.build();
+		restaurantList.add(restaurant);
 		
 		listAdapter = new RestaurantSearchArrayAdapter(this, restaurantList);
 		mListView = (ListView) findViewById(R.id.list);
@@ -189,6 +202,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	private void updateItemsInListAdapter(List<Restaurant> restaurants, Location location, int startIndex) {
 		//Remove any existing items in the list from the insert index onwards
 		
+		startIndex = startIndex + 1;
 		Log.i(MimiLog.TAG, "Updating list with " + restaurants.size() + " restaurants starting at index " + startIndex);
 		
 		if (restaurantList.size() > startIndex) {
