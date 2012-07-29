@@ -45,7 +45,7 @@ public class RestaurantDetailsActivity extends Activity {
 		
 		descriptionText.setText(restaurant.description);
 		cuisineText.setText(restaurant.cuisine);
-		foodPriceText.setText(restaurant.foodPrice);
+		setFoodPrice(foodPriceText, restaurant);
 		addressText.setText(restaurant.oneLineAddress);
 		
 		setEmail(emailButton, restaurant);
@@ -88,6 +88,14 @@ public class RestaurantDetailsActivity extends Activity {
 
 		});
 
+	}
+
+	private void setFoodPrice(TextView foodPriceText, Restaurant restaurant) {
+		if (restaurant.foodPrice != null) {
+			String cleanFoodPriceString = restaurant.foodPrice.replaceAll("([0-9]+)£", "£$1");
+			cleanFoodPriceString = cleanFoodPriceString.replaceAll("([0-9]+)€", "€$1");
+			foodPriceText.setText(cleanFoodPriceString);
+		}
 	}
 
 	private void setEmail(Button emailButton, Restaurant restaurant) {
