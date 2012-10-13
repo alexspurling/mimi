@@ -94,6 +94,7 @@ public class RestaurantDetailsActivity extends Activity {
 		if (restaurant.foodPrice != null) {
 			String cleanFoodPriceString = restaurant.foodPrice.replaceAll("([0-9]+)£", "£$1");
 			cleanFoodPriceString = cleanFoodPriceString.replaceAll("([0-9]+)€", "€$1");
+			cleanFoodPriceString = cleanFoodPriceString.replaceAll("/", "-");
 			foodPriceText.setText(cleanFoodPriceString);
 		}
 	}

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.sandstonelabs.mimi.RestaurantRating.RatingType;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
