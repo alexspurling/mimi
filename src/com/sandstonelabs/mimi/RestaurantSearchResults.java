@@ -68,18 +68,6 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 			throw new RuntimeException("Could not instantiate restaurant service", e);
 		}
 		
-		//Add test data
-		RestaurantRating qualityRating = new RestaurantRating(5, RatingType.COMFORTABLE, "Some description of the rating");
-		float latitude = 0;
-		float longitude = 0;
-		Restaurant restaurant = new Restaurant.RestaurantBuilder()
-			.name("Some long restaurant name")
-			.qualityRating(qualityRating)
-			.latitude(latitude)
-			.longitude(longitude)
-			.build();
-		restaurantList.add(restaurant);
-		
 		listAdapter = new RestaurantSearchArrayAdapter(this, restaurantList);
 		mListView = (ListView) findViewById(R.id.list);
 		mListView.setOnScrollListener(this);
