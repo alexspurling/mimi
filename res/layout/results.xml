@@ -37,8 +37,7 @@
 	        android:layout_height="wrap_content"
 		    android:layout_weight="100"
 	        android:paddingRight="10dp"
-	        android:text="@string/sample_name"
-        	android:layout_alignParentLeft="true" />
+	        android:text="@string/sample_name" />
 		    
 	    <!-- Layout for restaurant rating -->
 	    <LinearLayout
@@ -53,27 +52,32 @@
 			        android:id="@+id/comf1"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
-			        android:src="@drawable/pleasant" />
+			        android:src="@drawable/pleasant"
+			        android:contentDescription="@string/description_rating_star" />
 			    <ImageView
-			        android:id="@+id/comf1"
+			        android:id="@+id/comf2"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
-			        android:src="@drawable/pleasant" />
+			        android:src="@drawable/pleasant"
+			        android:contentDescription="@string/description_rating_star" />
 			    <ImageView
-			        android:id="@+id/comf1"
+			        android:id="@+id/comf3"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
-			        android:src="@drawable/pleasant" />
+			        android:src="@drawable/pleasant"
+			        android:contentDescription="@string/description_rating_star" />
 			    <ImageView
-			        android:id="@+id/comf1"
+			        android:id="@+id/comf4"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
-			        android:src="@drawable/pleasant" />
+			        android:src="@drawable/pleasant"
+			        android:contentDescription="@string/description_rating_star" />
 			    <ImageView
-			        android:id="@+id/comf1"
+			        android:id="@+id/comf5"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
-			        android:src="@drawable/pleasant" />
+			        android:src="@drawable/pleasant"
+			        android:contentDescription="@string/description_rating_star" />
 		    </LinearLayout>
 
 	</LinearLayout>
@@ -88,14 +92,14 @@
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:singleLine="true"
-	        android:text="modern - Carte: 21£/34£" />
+	        android:text="@string/sample_cuisine" />
 
 	    <TextView
 	        android:id="@+id/search_restaurant_distance"
 	        style="@android:style/TextAppearance.Small"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="0.5km"
+	        android:text="@string/sample_distance"
         	android:layout_alignParentRight="true" />
 	</RelativeLayout>
     

@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dip"
             android:paddingLeft="5dip"
-            android:text="Loading ..."
+            android:text="@string/loading_text"
             android:textSize="14dip"
             android:textStyle="bold" >
         </TextView>

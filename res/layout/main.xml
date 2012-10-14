@@ -7,7 +7,7 @@
             android:id="@+id/text"
             android:textColor="?android:textColorPrimary"
             android:textSize="17dp"
-            android:text="Status update"
+            android:text="@string/status_bar"
             android:background="@android:drawable/title_bar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
@@ -15,32 +15,7 @@
             android:id="@+id/list"
 		    android:layout_below="@id/text"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1" />
-    
-    <LinearLayout android:orientation="horizontal"
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content" 
-        android:layout_alignParentBottom="true"
-        android:background="#AA000000"
-        android:visibility="gone"
-        android:paddingTop="8dp"
-        android:gravity="center_horizontal">
-
-	    <ImageView
-	        android:id="@+id/imageView1"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:src="@android:drawable/stat_notify_sync"
-        	android:padding="8dp" />
-	    <TextView
-	            android:id="@+id/refresh"
-	            android:textColor="?android:textColorPrimary"
-	        	style="@android:style/TextAppearance.Medium"
-	            android:text="5 new restaurants found nearby - tap to refresh"
-	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content" />
-    </LinearLayout>
+            android:layout_height="fill_parent" />
 </RelativeLayout>
 
 
