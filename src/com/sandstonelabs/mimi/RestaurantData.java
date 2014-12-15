@@ -19,8 +19,7 @@ public class RestaurantData implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(restaurant.id);
-		dest.writeInt(restaurant.productId);
+		dest.writeString(restaurant.id);
 		dest.writeFloat(restaurant.latitude);
 		dest.writeFloat(restaurant.longitude);
 		dest.writeString(restaurant.name);
@@ -43,8 +42,7 @@ public class RestaurantData implements Parcelable {
 	private Restaurant loadFromParcel(Parcel in) {
 		RestaurantBuilder builder = new Restaurant.RestaurantBuilder();
 		
-		builder.id(in.readInt()).
-		productId(in.readInt()).
+		builder.id(in.readString()).
 		latitude(in.readFloat()).
 		longitude(in.readFloat()).
 		name(in.readString()).

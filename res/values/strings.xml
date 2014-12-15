@@ -2,7 +2,7 @@
 <resources>
 
     <!-- The name of the application. -->
-    <string name="app_name">Mimi Restaurant Search</string>
+    <string name="app_name">Mimi</string>
 
     <!-- Shown above search results when we receive a search request. -->
     <plurals name="search_results">
