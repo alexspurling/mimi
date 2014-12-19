@@ -233,6 +233,11 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		return true;
 	}
 
+    private void showMap() {
+        Intent intent = new Intent(this, MapActivity.class);
+        startActivity(intent);
+    }
+
 	private void showAbout() {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		alert.setTitle("Mimi Restaurant Search")
@@ -259,6 +264,9 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	        case R.id.menu_about:
 	            showAbout();
 	            return true;
+            case R.id.menu_map:
+                showMap();
+                return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
