@@ -2,7 +2,6 @@ package com.sandstonelabs.mimi;
 
 import java.net.URLEncoder;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,28 +17,28 @@ public class RestaurantDetailsFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-		Activity activity = getActivity();
+		MainActivity activity = (MainActivity) getActivity();
 
-		RestaurantData restaurantData = activity.getIntent().getParcelableExtra("restaurant");
+		View detailsView = inflater.inflate(R.layout.details, container, false);
 
-		if (restaurantData != null) {
+		final Restaurant restaurant = activity.getSelectedRestaurant();
 
-			TextView nameText = (TextView) activity.findViewById(R.id.details_name);
-			ViewGroup comfortRatingLayout = (ViewGroup) activity.findViewById(R.id.details_comfort_rating_layout);
-			ViewGroup qualityRatingLayout = (ViewGroup) activity.findViewById(R.id.details_quality_rating_layout);
-			ViewGroup comfortRatingView = (ViewGroup) activity.findViewById(R.id.details_comfort_rating);
-			ViewGroup qualityRatingView = (ViewGroup) activity.findViewById(R.id.details_quality_rating);
-			TextView comfortRatingDescriptionText = (TextView) activity.findViewById(R.id.details_comfort_rating_description);
-			TextView qualityRatingDescriptionText = (TextView) activity.findViewById(R.id.details_quality_rating_description);
-			TextView descriptionText = (TextView) activity.findViewById(R.id.details_description);
-			TextView cuisineText = (TextView) activity.findViewById(R.id.details_cuisine);
-			TextView foodPriceText = (TextView) activity.findViewById(R.id.details_food_price);
-			TextView addressText = (TextView) activity.findViewById(R.id.details_address);
-			Button locationButton = (Button) activity.findViewById(R.id.details_location);
-			Button emailButton = (Button) activity.findViewById(R.id.details_email);
-			Button callPhoneButton = (Button) activity.findViewById(R.id.details_call);
+		if (restaurant != null) {
 
-			final Restaurant restaurant = restaurantData.getRestaurant();
+			TextView nameText = (TextView) detailsView.findViewById(R.id.details_name);
+			ViewGroup comfortRatingLayout = (ViewGroup) detailsView.findViewById(R.id.details_comfort_rating_layout);
+			ViewGroup qualityRatingLayout = (ViewGroup) detailsView.findViewById(R.id.details_quality_rating_layout);
+			ViewGroup comfortRatingView = (ViewGroup) detailsView.findViewById(R.id.details_comfort_rating);
+			ViewGroup qualityRatingView = (ViewGroup) detailsView.findViewById(R.id.details_quality_rating);
+			TextView comfortRatingDescriptionText = (TextView) detailsView.findViewById(R.id.details_comfort_rating_description);
+			TextView qualityRatingDescriptionText = (TextView) detailsView.findViewById(R.id.details_quality_rating_description);
+			TextView descriptionText = (TextView) detailsView.findViewById(R.id.details_description);
+			TextView cuisineText = (TextView) detailsView.findViewById(R.id.details_cuisine);
+			TextView foodPriceText = (TextView) detailsView.findViewById(R.id.details_food_price);
+			TextView addressText = (TextView) detailsView.findViewById(R.id.details_address);
+			Button locationButton = (Button) detailsView.findViewById(R.id.details_location);
+			Button emailButton = (Button) detailsView.findViewById(R.id.details_email);
+			Button callPhoneButton = (Button) detailsView.findViewById(R.id.details_call);
 
 			RestaurantDisplay restaurantDisplay = new RestaurantDisplay(restaurant);
 
@@ -94,7 +93,7 @@ public class RestaurantDetailsFragment extends Fragment {
 			});
 		}
 
-		return inflater.inflate(R.layout.details, container, false);
+		return detailsView;
 	}
 
 	private void setFoodPrice(TextView foodPriceText, Restaurant restaurant) {

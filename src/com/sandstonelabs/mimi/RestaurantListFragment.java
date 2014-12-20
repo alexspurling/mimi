@@ -6,12 +6,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.app.*;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -30,55 +28,63 @@ import android.widget.TextView;
  * Displays search results triggered by the search dialog and handles actions
  * from search suggestions.
  */
-public class RestaurantListFragment extends Fragment implements OnScrollListener, LocationChangeListener, RestaurantListener {
-
-	private List<Restaurant> restaurantList = new ArrayList<Restaurant>();
+public class RestaurantListFragment extends Fragment implements OnScrollListener, RestaurantListener {
 	
 	private TextView mTextView;
 	private ListView mListView;
 	private View footerView;
 	private RestaurantSearchArrayAdapter listAdapter;
-	private MimiLocationService locationService;
-	private MimiRestaurantService restaurantService;
 
-	private static final int NUM_RESULTS_PER_PAGE = 20;
-	private static final int MAX_RESULTS = 100;
-	
-	private AtomicBoolean loadingResults = new AtomicBoolean(false);
-
-	private Location location;
 
 	private PopupWindow aboutPopup;
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		Activity activity = getActivity();
-//		activity.setContentView(R.layout.listfragment);
-
-		try {
-			restaurantService = new MimiRestaurantService(activity, this);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not instantiate restaurant service", e);
-		}
-
-		locationService = new MimiLocationService(activity, this);
-
-	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View mainView = inflater.inflate(R.layout.listfragment, container, false);
 
-		Activity activity = getActivity();
+		final MainActivity activity = getMainActivity();
 		mTextView = (TextView) mainView.findViewById(R.id.text);
 
-		listAdapter = new RestaurantSearchArrayAdapter(activity, restaurantList);
+		listAdapter = new RestaurantSearchArrayAdapter(activity, activity.restaurantList);
+		listAdapter.setLocation(activity.location);
+
 		mListView = (ListView) mainView.findViewById(R.id.list);
 		mListView.setOnScrollListener(this);
 
 		mListView.setAdapter(listAdapter);
+
+		// Define the on-click listener for the list items
+		mListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				// Build the Intent used to open WordActivity with a specific
+				// word Uri
+				/*
+				Intent restaurantIntent = new Intent(getActivity().getApplicationContext(), RestaurantDetailsFragment.class);
+
+				Restaurant restaurant = listAdapter.getItem(position);
+
+				restaurantIntent.putExtra("restaurant", new RestaurantData(restaurant));
+				startActivity(restaurantIntent);
+				*/
+
+				activity.setSelectedRestaurant(listAdapter.getItem(position));
+
+				RestaurantDetailsFragment restaurantDetailsFragment = new RestaurantDetailsFragment();
+
+				FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+
+				transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+				// Replace whatever is in the fragment_container view with this fragment,
+				// and add the transaction to the back stack so the user can navigate back
+				transaction.replace(R.id.fragment_container, restaurantDetailsFragment);
+				transaction.addToBackStack(null);
+
+				// Commit the transaction
+				transaction.commit();
+			}
+		});
 
 		footerView = inflater.inflate(R.layout.listfooter, container, false);
 
@@ -86,9 +92,11 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 
 		setupAboutPopup(inflater);
 
-		initialiseResults();
-
 		return mainView;
+	}
+
+	private MainActivity getMainActivity() {
+		return (MainActivity)getActivity();
 	}
 
 	@Override
@@ -122,39 +130,12 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 //		initialiseResults();
 //	}
 
-	private void initialiseResults() {
-		mTextView.setText("Loading your current location...");
-		// Get the last available location to display results
-		Location location = locationService.getLastKnownLocation();
-		if (location != null) {
-			onLocationChanged(location);
-		}
-	}
-
-	@Override
-	public void onLocationChanged(Location location) {
-		this.location = location;
-		//If we have a new location then refresh any results that are already loaded
-		loadRestaurants(0, NUM_RESULTS_PER_PAGE);
-	}
-
-	private void loadRestaurants(int startIndex, int numResults) {
-		if (restaurantService != null && location != null) {
-			//Check mutex to avoid loading restaurants more than once
-			if (loadingResults.compareAndSet(false, true)) {
-				Log.i(MimiLog.TAG, "About to load " + numResults + " results from index " + startIndex);
-				mTextView.setText("Loading results ...");
-				restaurantService.loadRestaurantsForLocation(location, startIndex, numResults);
-			}
-		}
-	}
-
 	@Override
 	public void onRestaurantsLoaded(List<Restaurant> restaurants, Location location, int startIndex) {
 		displayResults(restaurants, location, startIndex);
-		Log.i(MimiLog.TAG, "Loaded " + restaurantList.size() + " results");
-		mTextView.setText("Loaded " + restaurantList.size() + " results");
-		loadingResults.set(false); //Unset mutex
+		Log.i(MimiLog.TAG, "Loaded " + getMainActivity().restaurantList.size() + " results");
+		mTextView.setText("Loaded " + getMainActivity().restaurantList.size() + " results");
+		getMainActivity().loadingResults.set(false); //Unset mutex
 	}
 
 	private void displayResults(List<Restaurant> restaurants, Location location, int startIndex) {
@@ -163,42 +144,12 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 		
 		Log.i(MimiLog.TAG, "List has " + listAdapter.getCount() + " elements");
 
-		// Define the on-click listener for the list items
-		mListView.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				// Build the Intent used to open WordActivity with a specific
-				// word Uri
-				/*
-				Intent restaurantIntent = new Intent(getActivity().getApplicationContext(), RestaurantDetailsFragment.class);
-
-				Restaurant restaurant = listAdapter.getItem(position);
-
-				restaurantIntent.putExtra("restaurant", new RestaurantData(restaurant));
-				startActivity(restaurantIntent);
-				*/
-
-				RestaurantDetailsFragment restaurantDetailsFragment = new RestaurantDetailsFragment();
-
-				FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
-
-				transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-				// Replace whatever is in the fragment_container view with this fragment,
-				// and add the transaction to the back stack so the user can navigate back
-				transaction.replace(R.id.fragment_container, restaurantDetailsFragment);
-				transaction.addToBackStack(null);
-
-				// Commit the transaction
-				transaction.commit();
-			}
-		});
 		
-		if (listAdapter.getCount() >= MAX_RESULTS) {
-			removeLoadingFooter();
-		}else{
-			addLoadingFooter();
-		}
+//		if (listAdapter.getCount() >= MAX_RESULTS) {
+//			removeLoadingFooter();
+//		}else{
+//			addLoadingFooter();
+//		}
 	}
 
 	private void addLoadingFooter() {
@@ -218,7 +169,8 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 		
 		startIndex = startIndex + 1;
 		Log.i(MimiLog.TAG, "Updating list with " + restaurants.size() + " restaurants starting at index " + startIndex);
-		
+
+		List<Restaurant> restaurantList = getMainActivity().restaurantList;
 		if (restaurantList.size() > startIndex) {
 			ListIterator<Restaurant> iter = restaurantList.listIterator(restaurantList.size());
 			while(restaurantList.size() > startIndex && iter.hasPrevious()) {
@@ -238,20 +190,13 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		if (firstVisibleItem + visibleItemCount >= totalItemCount) {
 			//Load a page of new results onto the end of the existing list
-			int startIndex = restaurantList.size();
-			loadRestaurants(startIndex, NUM_RESULTS_PER_PAGE);
+			int startIndex = getMainActivity().restaurantList.size();
+			//loadRestaurants(startIndex, NUM_RESULTS_PER_PAGE);
 		}
 	}
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-	}
-
-	@Override
-	public void onLocationUnavailable() {
-		Log.i(MimiLog.TAG, "Location unavailable");
-		mTextView.setText("Current location unavailable");
-		removeLoadingFooter();
 	}
 
     private void showMap() {
@@ -268,19 +213,19 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 			.show();
 	}
 
-	private void refresh() {
-		locationService.refreshLocationManager(getActivity());
-		listAdapter.clear();
-		listAdapter.notifyDataSetChanged();
-		initialiseResults();
-	}
+//	private void refresh() {
+//		locationService.refreshLocationManager(getActivity());
+//		listAdapter.clear();
+//		listAdapter.notifyDataSetChanged();
+//		initialiseResults();
+//	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
 	    switch (item.getItemId()) {
 	        case R.id.menu_refresh:
-	            refresh();
+//	            refresh();
 	            return true;
 	        case R.id.menu_about:
 	            showAbout();
