@@ -1,15 +1,17 @@
 package com.sandstonelabs.mimi;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.*;
 import android.app.Activity;
 
-public class MapActivity extends Activity implements GoogleMap.OnMapClickListener {
+public class RestaurantMapFragment extends MapFragment implements GoogleMap.OnMapClickListener {
 
 
     @Override
