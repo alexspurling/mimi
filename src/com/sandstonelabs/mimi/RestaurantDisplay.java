@@ -55,10 +55,13 @@ public class RestaurantDisplay {
 	}
 	
 	private void setRatingView(RestaurantRating rating, Context context, ViewGroup viewGroup) {
+
+		//First, clear out any existing views from this group
+		viewGroup.removeAllViews();
+
 		//Nothing to set
 		if (rating == null) return;
-		
-		viewGroup.removeAllViews(); //Clear out any existing views from this group
+
 		View previousView = null;
 		
 		int ratingImageResource = getRatingImageResource(rating);

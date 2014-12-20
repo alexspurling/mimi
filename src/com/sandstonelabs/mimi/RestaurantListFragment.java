@@ -166,8 +166,7 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 
 	private void updateItemsInListAdapter(List<Restaurant> restaurants, Location location, int startIndex) {
 		//Remove any existing items in the list from the insert index onwards
-		
-		startIndex = startIndex + 1;
+
 		Log.i(MimiLog.TAG, "Updating list with " + restaurants.size() + " restaurants starting at index " + startIndex);
 
 		List<Restaurant> restaurantList = getMainActivity().restaurantList;
