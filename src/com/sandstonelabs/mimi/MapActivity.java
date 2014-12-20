@@ -24,7 +24,7 @@ public class MapActivity extends Activity implements GoogleMap.OnMapClickListene
     }
 
     private void showResults() {
-        Intent intent = new Intent(this, RestaurantSearchResults.class);
+        Intent intent = new Intent(this, RestaurantListFragment.class);
         startActivity(intent);
     }
 

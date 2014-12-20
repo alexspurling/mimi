@@ -8,18 +8,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -33,7 +30,7 @@ import android.widget.TextView;
  * Displays search results triggered by the search dialog and handles actions
  * from search suggestions.
  */
-public class RestaurantSearchResults extends Activity implements OnScrollListener, LocationChangeListener, RestaurantListener {
+public class RestaurantListFragment extends Fragment implements OnScrollListener, LocationChangeListener, RestaurantListener {
 
 	private List<Restaurant> restaurantList = new ArrayList<Restaurant>();
 	
@@ -56,35 +53,52 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
 
-		mTextView = (TextView) findViewById(R.id.text);
+		Activity activity = getActivity();
+//		activity.setContentView(R.layout.listfragment);
 
 		try {
-			restaurantService = new MimiRestaurantService(this, this);
+			restaurantService = new MimiRestaurantService(activity, this);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not instantiate restaurant service", e);
 		}
-		
-		listAdapter = new RestaurantSearchArrayAdapter(this, restaurantList);
-		mListView = (ListView) findViewById(R.id.list);
+
+		locationService = new MimiLocationService(activity, this);
+
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View mainView = inflater.inflate(R.layout.listfragment, container, false);
+
+		Activity activity = getActivity();
+		mTextView = (TextView) mainView.findViewById(R.id.text);
+
+		listAdapter = new RestaurantSearchArrayAdapter(activity, restaurantList);
+		mListView = (ListView) mainView.findViewById(R.id.list);
 		mListView.setOnScrollListener(this);
-		
-		LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		footerView = inflater.inflate(R.layout.listfooter, null);
-		addLoadingFooter();
+
 		mListView.setAdapter(listAdapter);
-		
+
+		footerView = inflater.inflate(R.layout.listfooter, container, false);
+
+		addLoadingFooter();
+
 		setupAboutPopup(inflater);
 
-		locationService = new MimiLocationService(this, this);
-		
 		initialiseResults();
+
+		return mainView;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
 	}
 
 	private void setupAboutPopup(LayoutInflater inflater) {
-		this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		Display display = getWindowManager().getDefaultDisplay();
+//		getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		Display display = getActivity().getWindowManager().getDefaultDisplay();
 		int popupWidth = display.getWidth() - 40;
 		int popupHeight = 400;
 		aboutPopup = new PopupWindow(inflater.inflate(R.layout.about, null, false), popupWidth, popupHeight, true);
@@ -98,15 +112,15 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 //			}
 //		});
 	}
-
-	@Override
-	protected void onNewIntent(Intent intent) {
-		// Because this activity has set launchMode="singleTop", the system calls this method
-		// to deliver the intent if this activity is currently the foreground activity when
-		// invoked again (when the user executes a search from this activity, we don't create
-		// a new instance of this activity, so the system delivers the search intent here)
-		initialiseResults();
-	}
+//
+//	@Override
+//	protected void onNewIntent(Intent intent) {
+//		// Because this activity has set launchMode="singleTop", the system calls this method
+//		// to deliver the intent if this activity is currently the foreground activity when
+//		// invoked again (when the user executes a search from this activity, we don't create
+//		// a new instance of this activity, so the system delivers the search intent here)
+//		initialiseResults();
+//	}
 
 	private void initialiseResults() {
 		mTextView.setText("Loading your current location...");
@@ -156,13 +170,27 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				// Build the Intent used to open WordActivity with a specific
 				// word Uri
-				Intent restaurantIntent = new Intent(getApplicationContext(), RestaurantDetailsActivity.class);
+				/*
+				Intent restaurantIntent = new Intent(getActivity().getApplicationContext(), RestaurantDetailsFragment.class);
 
 				Restaurant restaurant = listAdapter.getItem(position);
 
 				restaurantIntent.putExtra("restaurant", new RestaurantData(restaurant));
-
 				startActivity(restaurantIntent);
+				*/
+
+				RestaurantDetailsFragment restaurantDetailsFragment = new RestaurantDetailsFragment();
+
+				FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+
+				transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+				// Replace whatever is in the fragment_container view with this fragment,
+				// and add the transaction to the back stack so the user can navigate back
+				transaction.replace(R.id.fragment_container, restaurantDetailsFragment);
+				transaction.addToBackStack(null);
+
+				// Commit the transaction
+				transaction.commit();
 			}
 		});
 		
@@ -175,7 +203,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 
 	private void addLoadingFooter() {
 		if (mListView.getFooterViewsCount() == 0) {
-			mListView.addFooterView(footerView);
+			//mListView.addFooterView(footerView);
 			mListView.setOnScrollListener(this);
 		}
 	}
@@ -225,21 +253,14 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 		mTextView.setText("Current location unavailable");
 		removeLoadingFooter();
 	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.menu, menu);
-		return true;
-	}
 
     private void showMap() {
-        Intent intent = new Intent(this, MapActivity.class);
+        Intent intent = new Intent(getActivity(), MapActivity.class);
         startActivity(intent);
     }
 
 	private void showAbout() {
-		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 		alert.setTitle("Mimi Restaurant Search")
 			.setMessage("Happy birthday, Mum! May Mimi guide you always to good food and happy times.")
 			.setIcon(R.drawable.ic_launcher)
@@ -248,7 +269,7 @@ public class RestaurantSearchResults extends Activity implements OnScrollListene
 	}
 
 	private void refresh() {
-		locationService.refreshLocationManager(this);
+		locationService.refreshLocationManager(getActivity());
 		listAdapter.clear();
 		listAdapter.notifyDataSetChanged();
 		initialiseResults();
