@@ -10,16 +10,17 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.google.android.gms.maps.model.LatLng;
 
 public class RestaurantSearchArrayAdapter extends ArrayAdapter<Restaurant> {
 
-	private Location location;
+	private LatLng location;
 
 	public RestaurantSearchArrayAdapter(Context context, List<Restaurant> restaurantList) {
 		super(context, R.layout.results, restaurantList);
 	}
 	
-	public void setLocation(Location location) {
+	public void setLocation(LatLng location) {
 		this.location = location;
 	}
 

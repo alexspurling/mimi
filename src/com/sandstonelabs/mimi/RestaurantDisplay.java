@@ -29,8 +29,8 @@ public class RestaurantDisplay {
 		this.restaurant = restaurant;
 	}
 	
-	public String getDistance(Location location) {
-		LatLng searchLocation = new LatLng(location.getLatitude(), location.getLongitude());
+	public String getDistance(com.google.android.gms.maps.model.LatLng location) {
+		LatLng searchLocation = new LatLng(location.latitude, location.longitude);
 		LatLng restaurantLocation = new LatLng(restaurant.latitude, restaurant.longitude);
 		double distance = LatLngTool.distance(searchLocation, restaurantLocation, LengthUnit.KILOMETER);
 		DecimalFormat df = new DecimalFormat("#.#");

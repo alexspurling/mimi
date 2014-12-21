@@ -17,6 +17,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * This activity displays the results of a location based restaurant search.
@@ -126,14 +127,14 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 //	}
 
 	@Override
-	public void onRestaurantsLoaded(List<Restaurant> restaurants, Location location, int startIndex) {
+	public void onRestaurantsLoaded(List<Restaurant> restaurants, LatLng location, int startIndex) {
 		displayResults(restaurants, location, startIndex);
 		Log.i(MimiLog.TAG, "Loaded " + getMainActivity().restaurantList.size() + " results");
 		mTextView.setText("Loaded " + getMainActivity().restaurantList.size() + " results");
 		getMainActivity().loadingResults.set(false); //Unset mutex
 	}
 
-	private void displayResults(List<Restaurant> restaurants, Location location, int startIndex) {
+	private void displayResults(List<Restaurant> restaurants, LatLng location, int startIndex) {
 
 		updateItemsInListAdapter(restaurants, location, startIndex);
 		
@@ -159,7 +160,7 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 		mListView.setOnScrollListener(null);
 	}
 
-	private void updateItemsInListAdapter(List<Restaurant> restaurants, Location location, int startIndex) {
+	private void updateItemsInListAdapter(List<Restaurant> restaurants, LatLng location, int startIndex) {
 		//Remove any existing items in the list from the insert index onwards
 
 		Log.i(MimiLog.TAG, "Updating list with " + restaurants.size() + " restaurants starting at index " + startIndex);
@@ -185,7 +186,7 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 		if (firstVisibleItem + visibleItemCount >= totalItemCount) {
 			//Load a page of new results onto the end of the existing list
 			int startIndex = getMainActivity().restaurantList.size();
-			//getMainActivity().loadRestaurants(startIndex);
+			getMainActivity().loadRestaurants(startIndex);
 		}
 	}
 

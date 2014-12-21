@@ -7,6 +7,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import com.google.android.gms.maps.model.LatLng;
 
 public class MimiLocationService {
 
@@ -34,7 +35,7 @@ public class MimiLocationService {
 		locationListener = new LocationListener() {
 			@Override
 			public void onLocationChanged(Location location) {
-				locationChangeListener.onLocationChanged(location);
+				locationChangeListener.onLocationChanged(new LatLng(location.getLatitude(), location.getLongitude()));
 			}
 
 			@Override

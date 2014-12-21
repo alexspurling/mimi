@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
+import com.google.android.gms.maps.model.LatLng;
 
 public class MimiRestaurantService {
 
@@ -39,12 +40,12 @@ public class MimiRestaurantService {
 		return new RestaurantService(restaurantApiSearch, restaurantJsonCache);
 	}
 
-	public void loadRestaurantsForLocation(Location location, int startIndex, int numResults) {
+	public void loadRestaurantsForLocation(LatLng location, int startIndex, int numResults) {
 		Log.i(MimiLog.TAG, "Getting restaurants for location: " + location.toString());
 
 		try {
-			float latitude = (float) location.getLatitude();
-			float longitude = (float) location.getLongitude();
+			float latitude = (float) location.latitude;
+			float longitude = (float) location.longitude;
 			
 			//First try to get the results from the cache
 			RestaurantResults restaurantResults = restaurantService.getCachedRestaurantsAtLocation(latitude, longitude, startIndex, numResults);
@@ -79,22 +80,22 @@ public class MimiRestaurantService {
 		return networkInfo != null && networkInfo.isConnected();
 	}
 	
-	private void fetchRestaurantsFromApi(Location location, int startIndex) {
+	private void fetchRestaurantsFromApi(LatLng location, int startIndex) {
 		Log.i(MimiLog.TAG, "Getting restaurants from api from index " + startIndex);
 		new FetchRestaurantsTask().execute(location, startIndex);
 	}
 
 	private class FetchRestaurantsTask extends AsyncTask<Object, Void, List<Restaurant>> {
 
-		private Location location;
+		private LatLng location;
 		private int startIndex;
 		
 		@Override
 	    protected List<Restaurant> doInBackground(Object... params) {
-			location = (Location)params[0];
+			location = (LatLng)params[0];
 			startIndex = (Integer)params[1];
-			float latitude = (float) location.getLatitude();
-			float longitude = (float) location.getLongitude();
+			float latitude = (float) location.latitude;
+			float longitude = (float) location.longitude;
         	try {
 				return restaurantService.getApiRestaurantsAtLocation(latitude, longitude, startIndex);
 			} catch (IOException e) {

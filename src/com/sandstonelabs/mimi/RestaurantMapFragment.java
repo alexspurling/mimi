@@ -1,10 +1,6 @@
 package com.sandstonelabs.mimi;
 
-import android.location.Location;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -57,9 +53,13 @@ public class RestaurantMapFragment extends MapFragment implements GoogleMap.OnMa
     }
 
     @Override
-    public void onRestaurantsLoaded(List<Restaurant> restaurants, Location location, int startIndex) {
+    public void onRestaurantsLoaded(List<Restaurant> restaurants, LatLng location, int startIndex) {
+        if (startIndex == 0)
+        {
+            allRestaurants.clear();
+        }
         allRestaurants.addAll(restaurants);
-        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        currentLocation = location;
         displayMarkers();
     }
 

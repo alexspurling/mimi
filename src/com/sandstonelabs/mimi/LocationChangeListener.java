@@ -1,10 +1,10 @@
 package com.sandstonelabs.mimi;
 
-import android.location.Location;
+import com.google.android.gms.maps.model.LatLng;
 
 public interface LocationChangeListener {
 
-	public void onLocationChanged(Location location);
+	public void onLocationChanged(LatLng location);
 	public void onLocationUnavailable();
 	
 }

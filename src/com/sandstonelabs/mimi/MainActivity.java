@@ -3,12 +3,17 @@ package com.sandstonelabs.mimi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.SearchView;
+import android.widget.Toast;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +24,7 @@ public class MainActivity extends Activity implements LocationChangeListener {
 
     List<Restaurant> restaurantList = new ArrayList<Restaurant>();
     AtomicBoolean loadingResults = new AtomicBoolean(false);
-    Location location;
+    LatLng location;
 
     private MimiLocationService locationService;
 
@@ -77,6 +82,32 @@ public class MainActivity extends Activity implements LocationChangeListener {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         mapListMenuItem = menu.findItem(R.id.menu_map_list);
+
+        MenuItem searchMenuItem = menu.findItem(R.id.menu_search);
+        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            int changes = 0;
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+
+//                if (changes >= 4 || s.endsWith(" ")) {
+//                    findLocationByName(s);
+//                    changes = 0;
+//                } else
+//                    ++changes;
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                findLocationByName(query);
+                return true;
+            }
+
+        });
+
         return true;
     }
 
@@ -91,12 +122,12 @@ public class MainActivity extends Activity implements LocationChangeListener {
         // Get the last available location to display results
         Location location = locationService.getLastKnownLocation();
         if (location != null) {
-            onLocationChanged(location);
+            onLocationChanged(new LatLng(location.getLatitude(), location.getLongitude()));
         }
     }
 
     @Override
-    public void onLocationChanged(Location location) {
+    public void onLocationChanged(LatLng location) {
         this.location = location;
         //If we have a new location then refresh any results that are already loaded
         loadRestaurants(0);
@@ -126,6 +157,21 @@ public class MainActivity extends Activity implements LocationChangeListener {
 
     public Restaurant getSelectedRestaurant() {
         return selectedRestaurant;
+    }
+
+    private void findLocationByName(String locationName) {
+        try {
+            List<Address> addresses = new Geocoder(this).getFromLocationName(locationName, 10);
+            if (addresses.isEmpty())
+            {
+                Toast toast = Toast.makeText(this, "No results found for " + locationName, Toast.LENGTH_SHORT);
+                toast.show();
+            }
+            Address firstAddress = addresses.get(0);
+            onLocationChanged(new LatLng(firstAddress.getLatitude(), firstAddress.getLongitude()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void toggleMapListView() {
