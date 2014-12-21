@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- The name of the application. -->
+    <string name="app_name">Mimi</string>
+
+    <!-- Shown above search results when we receive a search request. -->
+    <plurals name="search_results">
+      <item quantity="one">%1$d result for \"%2$s\": </item>
+      <item quantity="other">%1$d results for \"%2$s\": </item>
+    </plurals>
+
+    <!-- Search failure message. -->
+    <string name="no_results">No results found for \"%s\"</string>
+    
+    <string name="status_bar">Status update</string>
+    <string name="loading_text">Loading …</string>
+    <string name="description_rating_star">Restaurant Rating Star</string>
+
+    <string name="sample_name">A Long Restaurant Name</string>
+    <string name="sample_description">A Chelsea institution, with popular bar in the evenings and a separate, smart restaurant with restractable roof. The menu covers all bases and mixes British classics with European influences.</string>
+    <string name="sample_cuisine">Cuisine: Modern</string>
+    <string name="sample_distance">0.5km</string>
+    <string name="sample_rating_description">Restaurant within a Michelin recommended hotel (or restaurant)</string>
+    <string name="sample_food_price">Menu: 27£/ 59£ - Carte: 59£/85£</string>
+    <string name="sample_address">No address available</string>
+    <string name="sample_location">Show on map</string>
+    <string name="sample_email">No email available</string>
+    <string name="sample_phone_number">No phone number available</string>
+    
+    <string name="refresh">Refresh</string>
+    <string name="about">About</string>
+</resources>
