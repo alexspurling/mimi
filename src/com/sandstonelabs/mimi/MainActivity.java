@@ -1,11 +1,14 @@
 package com.sandstonelabs.mimi;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +28,9 @@ public class MainActivity extends Activity implements LocationChangeListener {
     private static final int MAX_RESULTS = 100;
     private Restaurant selectedRestaurant;
 
+    private RestaurantMapFragment restaurantMapFragment;
+    private RestaurantListFragment restaurantListFragment;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +44,7 @@ public class MainActivity extends Activity implements LocationChangeListener {
         }
 
         // Create an instance of ExampleFragment
-        RestaurantListFragment restaurantListFragment = new RestaurantListFragment();
+        restaurantListFragment = new RestaurantListFragment();
 
         // In case this activity was started with special instructions from an Intent,
         // pass the Intent's extras to the fragment as arguments
@@ -47,8 +53,16 @@ public class MainActivity extends Activity implements LocationChangeListener {
         // Add the fragment to the 'fragment_container' FrameLayout
         getFragmentManager().beginTransaction().add(R.id.fragment_container, restaurantListFragment).commit();
 
+        //Set up the map fragment
+        restaurantMapFragment = new RestaurantMapFragment();
+        restaurantMapFragment.getMapAsync(restaurantMapFragment);
+
+        List<RestaurantListener> listeners = new ArrayList<RestaurantListener>();
+        listeners.add(restaurantListFragment);
+        listeners.add(restaurantMapFragment);
+
         try {
-            restaurantService = new MimiRestaurantService(this, restaurantListFragment);
+            restaurantService = new MimiRestaurantService(this, listeners);
         } catch (IOException e) {
             throw new RuntimeException("Could not instantiate restaurant service", e);
         }
@@ -109,5 +123,56 @@ public class MainActivity extends Activity implements LocationChangeListener {
 
     public Restaurant getSelectedRestaurant() {
         return selectedRestaurant;
+    }
+
+    private void showMap() {
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, restaurantMapFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    private void showList() {
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, restaurantListFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+//	private void refresh() {
+//		locationService.refreshLocationManager(getActivity());
+//		listAdapter.clear();
+//		listAdapter.notifyDataSetChanged();
+//		initialiseResults();
+//	}
+
+    private void showAbout() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("Mimi Restaurant Search")
+                .setMessage("Merry Christmas, Mum! May Mimi guide you always to good food and happy times.")
+                .setIcon(R.drawable.ic_launcher)
+                .setNeutralButton("OK", null)
+                .show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_refresh:
+//	            refresh();
+                return true;
+            case R.id.menu_about:
+                showAbout();
+                return true;
+            case R.id.menu_map:
+                showMap();
+                return true;
+            case R.id.menu_list:
+                showList();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

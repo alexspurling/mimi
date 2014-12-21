@@ -14,14 +14,14 @@ import android.util.Log;
 public class MimiRestaurantService {
 
 	private final Context context;
-	private final RestaurantListener restaurantListener;
+	private final List<RestaurantListener> restaurantListeners;
 	
 	private RestaurantService restaurantService;
 
 
-	public MimiRestaurantService(Context context, RestaurantListener restaurantListener) throws IOException {
+	public MimiRestaurantService(Context context, List<RestaurantListener> restaurantListeners) throws IOException {
 		this.context = context;
-		this.restaurantListener = restaurantListener;
+		this.restaurantListeners = restaurantListeners;
 		restaurantService = setupRestaurantService(context);
 	}
 
@@ -63,7 +63,9 @@ public class MimiRestaurantService {
 				fetchRestaurantsFromApi(location, startIndex);
 			}else{
 				//Display the restaurants loaded from the cache (whether they are full or not)
-				restaurantListener.onRestaurantsLoaded(restaurantResults.restaurants, location, startIndex);
+				for (RestaurantListener restaurantListener : restaurantListeners) {
+					restaurantListener.onRestaurantsLoaded(restaurantResults.restaurants, location, startIndex);
+				}
 			}
 		}catch(IOException e) {
 			//TODO handle error properly
@@ -103,7 +105,9 @@ public class MimiRestaurantService {
 
 	    @Override
 	    protected void onPostExecute(List<Restaurant> restaurants) {
-	    	restaurantListener.onRestaurantsLoaded(restaurants, location, startIndex);
+			for (RestaurantListener restaurantListener : restaurantListeners) {
+				restaurantListener.onRestaurantsLoaded(restaurants, location, startIndex);
+			}
 	    }
 	    
 	}

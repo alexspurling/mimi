@@ -1,15 +1,10 @@
 package com.sandstonelabs.mimi;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.*;
-import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -196,44 +191,5 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-	}
-
-    private void showMap() {
-        Intent intent = new Intent(getActivity(), MapActivity.class);
-        startActivity(intent);
-    }
-
-	private void showAbout() {
-		AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-		alert.setTitle("Mimi Restaurant Search")
-			.setMessage("Happy birthday, Mum! May Mimi guide you always to good food and happy times.")
-			.setIcon(R.drawable.ic_launcher)
-			.setNeutralButton("OK", null)
-			.show();
-	}
-
-//	private void refresh() {
-//		locationService.refreshLocationManager(getActivity());
-//		listAdapter.clear();
-//		listAdapter.notifyDataSetChanged();
-//		initialiseResults();
-//	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	        case R.id.menu_refresh:
-//	            refresh();
-	            return true;
-	        case R.id.menu_about:
-	            showAbout();
-	            return true;
-            case R.id.menu_map:
-                showMap();
-                return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
 	}
 }
