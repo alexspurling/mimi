@@ -185,7 +185,7 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 		if (firstVisibleItem + visibleItemCount >= totalItemCount) {
 			//Load a page of new results onto the end of the existing list
 			int startIndex = getMainActivity().restaurantList.size();
-			//loadRestaurants(startIndex, NUM_RESULTS_PER_PAGE);
+			//getMainActivity().loadRestaurants(startIndex);
 		}
 	}
 

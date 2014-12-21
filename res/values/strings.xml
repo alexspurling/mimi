@@ -30,4 +30,7 @@
     
     <string name="refresh">Refresh</string>
     <string name="about">About</string>
+    <string name="view_as_list">View as list</string>
+    <string name="view_as_map">View as map</string>
+    <string name="search">Search</string>
 </resources>

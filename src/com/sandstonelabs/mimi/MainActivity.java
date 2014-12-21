@@ -30,6 +30,8 @@ public class MainActivity extends Activity implements LocationChangeListener {
 
     private RestaurantMapFragment restaurantMapFragment;
     private RestaurantListFragment restaurantListFragment;
+    private MenuItem mapListMenuItem;
+    private AtomicBoolean mapVisible = new AtomicBoolean(false);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,7 @@ public class MainActivity extends Activity implements LocationChangeListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+        mapListMenuItem = menu.findItem(R.id.menu_map_list);
         return true;
     }
 
@@ -96,16 +99,16 @@ public class MainActivity extends Activity implements LocationChangeListener {
     public void onLocationChanged(Location location) {
         this.location = location;
         //If we have a new location then refresh any results that are already loaded
-        loadRestaurants(0, NUM_RESULTS_PER_PAGE);
+        loadRestaurants(0);
     }
 
-    private void loadRestaurants(int startIndex, int numResults) {
+    public void loadRestaurants(int startIndex) {
         if (restaurantService != null && location != null) {
             //Check mutex to avoid loading restaurants more than once
             if (loadingResults.compareAndSet(false, true)) {
-                Log.i(MimiLog.TAG, "About to load " + numResults + " results from index " + startIndex);
+                Log.i(MimiLog.TAG, "About to load " + NUM_RESULTS_PER_PAGE + " results from index " + startIndex);
                 //mTextView.setText("Loading results ...");
-                restaurantService.loadRestaurantsForLocation(location, startIndex, numResults);
+                restaurantService.loadRestaurantsForLocation(location, startIndex, NUM_RESULTS_PER_PAGE);
             }
         }
     }
@@ -123,6 +126,18 @@ public class MainActivity extends Activity implements LocationChangeListener {
 
     public Restaurant getSelectedRestaurant() {
         return selectedRestaurant;
+    }
+
+    private void toggleMapListView() {
+        if (mapVisible.compareAndSet(false, true)) {
+            mapListMenuItem.setIcon(R.drawable.ic_action_view_as_list);
+            mapListMenuItem.setTitle(R.string.view_as_list);
+            showMap();
+        }else if (mapVisible.compareAndSet(true, false)) {
+            mapListMenuItem.setIcon(R.drawable.ic_action_map);
+            mapListMenuItem.setTitle(R.string.view_as_map);
+            showList();
+        }
     }
 
     private void showMap() {
@@ -165,11 +180,8 @@ public class MainActivity extends Activity implements LocationChangeListener {
             case R.id.menu_about:
                 showAbout();
                 return true;
-            case R.id.menu_map:
-                showMap();
-                return true;
-            case R.id.menu_list:
-                showList();
+            case R.id.menu_map_list:
+                toggleMapListView();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
