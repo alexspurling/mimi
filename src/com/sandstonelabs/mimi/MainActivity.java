@@ -1,5 +1,6 @@
 package com.sandstonelabs.mimi;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
@@ -11,16 +12,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.SearchView;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.*;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class MainActivity extends Activity implements LocationChangeListener {
+public class MainActivity extends Activity implements LocationChangeListener, AdapterView.OnItemSelectedListener {
 
     List<Restaurant> restaurantList = new ArrayList<Restaurant>();
     AtomicBoolean loadingResults = new AtomicBoolean(false);
@@ -35,8 +37,6 @@ public class MainActivity extends Activity implements LocationChangeListener {
 
     private RestaurantMapFragment restaurantMapFragment;
     private RestaurantListFragment restaurantListFragment;
-    private MenuItem mapListMenuItem;
-    private AtomicBoolean mapVisible = new AtomicBoolean(false);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +50,33 @@ public class MainActivity extends Activity implements LocationChangeListener {
             return;
         }
 
+        List<RestaurantListener> listeners = setupFragments();
+
+        setupServices(listeners);
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        actionBar.setDisplayShowTitleEnabled(false);
+        List<String> list = Arrays.asList("List", "Map");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, list);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        actionBar.setListNavigationCallbacks(adapter, new ActionBar.OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+                if (itemPosition == 0) {
+                    showList();
+                } else {
+                    showMap();
+                }
+                return true;
+            }
+        });
+
+        //setupListMapTabs();
+    }
+
+    private List<RestaurantListener> setupFragments() {
         // Create an instance of ExampleFragment
         restaurantListFragment = new RestaurantListFragment();
 
@@ -67,7 +94,10 @@ public class MainActivity extends Activity implements LocationChangeListener {
         List<RestaurantListener> listeners = new ArrayList<RestaurantListener>();
         listeners.add(restaurantListFragment);
         listeners.add(restaurantMapFragment);
+        return listeners;
+    }
 
+    private void setupServices(List<RestaurantListener> listeners) {
         try {
             restaurantService = new MimiRestaurantService(this, listeners);
         } catch (IOException e) {
@@ -78,13 +108,29 @@ public class MainActivity extends Activity implements LocationChangeListener {
     }
 
     @Override
+    public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
+        switch (position) {
+            case 0:
+                showList();
+                break;
+            case 1:
+                showMap();
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-        mapListMenuItem = menu.findItem(R.id.menu_map_list);
 
-        MenuItem searchMenuItem = menu.findItem(R.id.menu_search);
-        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        final MenuItem searchMenuItem = menu.findItem(R.id.menu_search);
+        final SearchView searchView = (SearchView) searchMenuItem.getActionView();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             int changes = 0;
@@ -103,6 +149,9 @@ public class MainActivity extends Activity implements LocationChangeListener {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 findLocationByName(query);
+                searchView.clearFocus();
+                searchMenuItem.collapseActionView();
+                searchView.setQuery("", false);
                 return true;
             }
 
@@ -147,7 +196,8 @@ public class MainActivity extends Activity implements LocationChangeListener {
     @Override
     public void onLocationUnavailable() {
         Log.i(MimiLog.TAG, "Location unavailable");
-//        mTextView.setText("Current location unavailable");
+        Toast toast = Toast.makeText(this, "Location unavailable", Toast.LENGTH_SHORT);
+        toast.show();
 //        removeLoadingFooter();
     }
 
@@ -167,36 +217,25 @@ public class MainActivity extends Activity implements LocationChangeListener {
                 Toast toast = Toast.makeText(this, "No results found for " + locationName, Toast.LENGTH_SHORT);
                 toast.show();
             }
-            Address firstAddress = addresses.get(0);
-            onLocationChanged(new LatLng(firstAddress.getLatitude(), firstAddress.getLongitude()));
+            else
+            {
+                Address firstAddress = addresses.get(0);
+                onLocationChanged(new LatLng(firstAddress.getLatitude(), firstAddress.getLongitude()));
+            }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void toggleMapListView() {
-        if (mapVisible.compareAndSet(false, true)) {
-            mapListMenuItem.setIcon(R.drawable.ic_action_view_as_list);
-            mapListMenuItem.setTitle(R.string.view_as_list);
-            showMap();
-        }else if (mapVisible.compareAndSet(true, false)) {
-            mapListMenuItem.setIcon(R.drawable.ic_action_map);
-            mapListMenuItem.setTitle(R.string.view_as_map);
-            showList();
         }
     }
 
     private void showMap() {
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, restaurantMapFragment);
-        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 
     private void showList() {
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, restaurantListFragment);
-        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 
@@ -225,9 +264,6 @@ public class MainActivity extends Activity implements LocationChangeListener {
                 return true;
             case R.id.menu_about:
                 showAbout();
-                return true;
-            case R.id.menu_map_list:
-                toggleMapListView();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -5,16 +5,12 @@
           android:showAsAction="always|collapseActionView"
           android:title="@string/search"
           android:actionViewClass="android.widget.SearchView"/>
-    <item android:id="@+id/menu_map_list"
-          android:icon="@drawable/ic_action_map"
-          android:title="@string/view_as_map"
-          android:showAsAction="ifRoom" />
     <item android:id="@+id/menu_refresh"
           android:icon="@drawable/ic_menu_refresh"
           android:title="@string/refresh"
-          android:showAsAction="ifRoom" />
+          android:showAsAction="never" />
     <item android:id="@+id/menu_about"
           android:icon="@drawable/ic_menu_info_details"
           android:title="@string/about"
-          android:showAsAction="ifRoom" />
+          android:showAsAction="never" />
 </menu>

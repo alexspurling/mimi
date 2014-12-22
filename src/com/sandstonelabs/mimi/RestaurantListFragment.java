@@ -10,13 +10,9 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
-import android.widget.AbsListView;
+import android.widget.*;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.TextView;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -25,8 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
  * from search suggestions.
  */
 public class RestaurantListFragment extends Fragment implements OnScrollListener, RestaurantListener {
-	
-	private TextView mTextView;
+
 	private ListView mListView;
 	private View footerView;
 	private RestaurantSearchArrayAdapter listAdapter;
@@ -39,7 +34,6 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 		View mainView = inflater.inflate(R.layout.listfragment, container, false);
 
 		final MainActivity activity = getMainActivity();
-		mTextView = (TextView) mainView.findViewById(R.id.text);
 
 		listAdapter = new RestaurantSearchArrayAdapter(activity, activity.restaurantList);
 		listAdapter.setLocation(activity.location);
@@ -130,7 +124,9 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 	public void onRestaurantsLoaded(List<Restaurant> restaurants, LatLng location, int startIndex) {
 		displayResults(restaurants, location, startIndex);
 		Log.i(MimiLog.TAG, "Loaded " + getMainActivity().restaurantList.size() + " results");
-		mTextView.setText("Loaded " + getMainActivity().restaurantList.size() + " results");
+		Toast toast = Toast.makeText(getActivity(), "Loaded " + getMainActivity().restaurantList.size() + " results", Toast.LENGTH_SHORT);
+		toast.show();
+
 		getMainActivity().loadingResults.set(false); //Unset mutex
 	}
 
@@ -183,7 +179,7 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-		if (firstVisibleItem + visibleItemCount >= totalItemCount) {
+		if (firstVisibleItem + visibleItemCount >= totalItemCount && totalItemCount > 0) {
 			//Load a page of new results onto the end of the existing list
 			int startIndex = getMainActivity().restaurantList.size();
 			getMainActivity().loadRestaurants(startIndex);
