@@ -122,12 +122,15 @@ public class RestaurantListFragment extends Fragment implements OnScrollListener
 
 	@Override
 	public void onRestaurantsLoaded(List<Restaurant> restaurants, LatLng location, int startIndex) {
-		displayResults(restaurants, location, startIndex);
-		Log.i(MimiLog.TAG, "Loaded " + getMainActivity().restaurantList.size() + " results");
-		Toast toast = Toast.makeText(getActivity(), "Loaded " + getMainActivity().restaurantList.size() + " results", Toast.LENGTH_SHORT);
-		toast.show();
+		//Make sure the activity is ready
+		if (getActivity() != null) {
+			displayResults(restaurants, location, startIndex);
+			Log.i(MimiLog.TAG, "Loaded " + getMainActivity().restaurantList.size() + " results");
+			Toast toast = Toast.makeText(getActivity(), "Loaded " + getMainActivity().restaurantList.size() + " results", Toast.LENGTH_SHORT);
+			toast.show();
 
-		getMainActivity().loadingResults.set(false); //Unset mutex
+			getMainActivity().loadingResults.set(false); //Unset mutex
+		}
 	}
 
 	private void displayResults(List<Restaurant> restaurants, LatLng location, int startIndex) {

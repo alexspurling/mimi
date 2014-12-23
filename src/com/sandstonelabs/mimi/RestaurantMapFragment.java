@@ -2,16 +2,13 @@ package com.sandstonelabs.mimi;
 
 import android.os.Bundle;
 import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class RestaurantMapFragment extends MapFragment implements GoogleMap.OnMapClickListener, RestaurantListener, OnMapReadyCallback {
+public class RestaurantMapFragment extends MapFragment implements GoogleMap.OnMapLongClickListener, GoogleMap.OnInfoWindowClickListener, RestaurantListener, OnMapReadyCallback {
 
     private GoogleMap map;
 
@@ -39,16 +36,12 @@ public class RestaurantMapFragment extends MapFragment implements GoogleMap.OnMa
 //        return inflater.inflate(R.layout.map, container, false);
 //    }
 
-
-    @Override
-    public void onMapClick(LatLng latLng) {
-
-    }
-
     @Override
     public void onMapReady(GoogleMap map) {
         this.map = map;
         map.setMyLocationEnabled(true);
+        map.setOnMapLongClickListener(this);
+        map.setOnInfoWindowClickListener(this);
         displayMarkers();
     }
 
@@ -79,6 +72,22 @@ public class RestaurantMapFragment extends MapFragment implements GoogleMap.OnMa
             bc.include(currentLocation);
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bc.build(), 100);
             map.moveCamera(cameraUpdate);
+        }
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        Marker marker = map.addMarker(new MarkerOptions()
+                .title("Search here")
+                .position(latLng));
+        marker.showInfoWindow();
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        if (marker.getTitle().equals("Search here")) {
+            ((MainActivity)getActivity()).onLocationChanged(marker.getPosition());
+            marker.remove();
         }
     }
 }
